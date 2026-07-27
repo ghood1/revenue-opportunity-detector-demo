@@ -2,9 +2,9 @@
 
 **Designed & built by Greg Hood.**
 
-A single-page dashboard that scans a short-let property portfolio, flags underperforming
+A dashboard that scans a short-let property portfolio, flags underperforming
 properties against six revenue signals, sizes the recoverable revenue behind each flag, and
-routes the fix to the right person.
+routes the fix to the account manager.
 
 **[▶ View the live demo](https://ghood1.github.io/revenue-opportunity-detector-demo/)**
 &nbsp;·&nbsp; *(update this link once GitHub Pages is enabled — see below)*
@@ -40,8 +40,8 @@ someone's afternoon rather than by which number looks worst.
 - **Sort by Highest Opportunity** — the ranking that makes the tool useful; biggest recoverable
   value first, not biggest percentage drop.
 - **Performance History** on any card — 12-month occupancy / nightly rate / booking value
-  sparklines, with new listings handled separately so three months of data isn't read as a decline.
-- **Cancellations filter** → *Peak District Farmhouse* — shows gross cancelled value split into
+  with new listings handled separately so three months of data isn't read as a decline.
+- **Cancellations filter** → shows gross cancelled value split into
   what was resold versus what was genuinely lost. A 34% cancellation rate with a 64% resell rate
   is a very different problem from the same rate with nothing recovered.
 - **Email Host** on any card — generates a ready-to-send draft written for that property's
@@ -101,7 +101,7 @@ within a minute or two. Update the demo link at the top of this file once it's l
 
 ## Why I built it
 
-I was spending too long manually pulling reports to work out which properties in the portfolio
+Our team was spending too long manually pulling reports to work out which properties in the portfolio
 were quietly underperforming — and even then I didn't know which ones were worth acting on first.
 A 40% occupancy drop on a low-value listing matters far less than a 10% drop on a high-value one,
 but a percentage-ranked report treats them the same.
@@ -114,36 +114,7 @@ meaningless on its own — what matters is whether those nights got resold. So t
 cancelled bookings into individual nights, checks each one against every night later booked on
 that property, and subtracts what was recovered. What's left is the only number worth chasing.
 
-I built the whole thing solo: the warehouse SQL, the detection and sizing logic, the scheduled
+I built the whole thing: the warehouse SQL, the detection and sizing logic, the scheduled
 pipeline, the CRM integration, and this interface.
 
 **— Greg Hood**
-
-## Before you share
-
-- [ ] Sample data only — no real property IDs, hosts, colleagues or figures *(done in this build)*
-- [ ] No API keys, tokens or webhook URLs in the source *(done — verified)*
-- [ ] No internal hostnames or warehouse/table names *(done)*
-- [ ] Attribution to me is intentional (banner byline, footer credit, `GH` avatar, greeting)
-- [ ] Company branding is intentional and cleared for external use
-- [ ] My email address is deliberately **not** in the page — a public GitHub Pages URL gets
-      scraped. Add it to the footer credit only if you want to be contactable that way.
-- [ ] Vendor names: this build labels data sources generically. If you'd rather name the
-      actual products in the Settings → Data Integrations panel, edit the `.api-card` blocks.
-
-## Customising the demo
-
-Everything lives in `index.html`.
-
-| To change | Look for |
-|---|---|
-| Sample properties | `const DATA = [` |
-| Signal labels and icons | `const ISSUE_CFG = {` |
-| Host email templates | `function buildEmailDraft(p)` |
-| Demo banner wording / byline | `<div class="demo-banner">` |
-| Footer credit | `<div class="build-credit">` |
-| "Why I built it" in-app copy | Settings → search `Who built this` |
-| Colours and type | the `:root` custom properties in `<style>` |
-
-Headline figures (properties flagged, total opportunity, occupancy gap, high-priority count)
-are all derived from `DATA` at load — edit the sample set and the KPIs follow.
