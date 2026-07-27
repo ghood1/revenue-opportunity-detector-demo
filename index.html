@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEMO · Revenue Opportunity Detector — Travelnest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy-900: #0A1640;
+      --navy-800: #0F1F5C;
+      --navy-700: #162D7A;
+      --blue-500: #4368E7;
+      --blue-400: #7B96F5;
+      --blue-100: #EEF2FF;
+      --blue-50:  #F5F7FF;
+      --gray-900: #111827;
+      --gray-700: #374151;
+      --gray-600: #4B5563;
+      --gray-500: #6B7280;
+      --gray-400: #9CA3AF;
+      --gray-300: #D1D5DB;
+      --gray-200: #E5E7EB;
+      --gray-100: #F3F4F6;
+      --gray-50:  #F9FAFB;
+      --white:    #FFFFFF;
+      --red-700:   #B91C1C;
+      --red-600:   #DC2626;
+      --red-500:   #EF4444;
+      --red-100:   #FEE2E2;
+      --amber-700: #B45309;
+      --amber-600: #D97706;
+      --amber-500: #F59E0B;
+      --amber-100: #FEF3C7;
+      --green-700: #15803D;
+      --green-600: #16A34A;
+      --green-500: #22C55E;
+      --green-100: #DCFCE7;
+      --purple-700: #6D28D9;
+      --purple-600: #7C3AED;
+      --purple-100: #EDE9FE;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--navy-900); padding: 0 40px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .logo { display: flex; align-items: center; text-decoration: none; cursor: pointer; }
+    .logo svg { height: 26px; width: auto; }
+    .header-nav { display: flex; align-items: center; gap: 4px; }
+    .nav-link {
+      padding: 6px 14px; border-radius: 7px;
+      color: rgba(255,255,255,0.6); text-decoration: none;
+      font-size: 14px; font-weight: 500; transition: all 0.15s; cursor: pointer;
+      background: none; border: none; font-family: inherit;
+    }
+    .nav-link:hover { color: white; background: rgba(255,255,255,0.07); }
+    .nav-link.active { color: white; background: rgba(255,255,255,0.12); }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border-radius: 8px; font-size: 14px;
+      font-weight: 600; cursor: pointer; border: none;
+      font-family: inherit; transition: all 0.18s; text-decoration: none;
+    }
+    .btn-primary { background: var(--blue-500); color: white; }
+    .btn-primary:hover { background: #3451D1; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(67,98,239,0.35); }
+    .btn-ghost-white { background: transparent; color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.25); }
+    .btn-ghost-white:hover { background: rgba(255,255,255,0.09); color: white; }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue-500), #7B96F5);
+      color: white; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; cursor: pointer; flex-shrink: 0;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: linear-gradient(180deg, var(--navy-800) 0%, #0F2060 100%);
+      padding: 32px 40px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .page-header-top {
+      max-width: 1360px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 28px;
+    }
+    .page-title { font-size: 28px; font-weight: 900; color: white; letter-spacing: -0.5px; margin-bottom: 5px; }
+    .page-subtitle { font-size: 14px; color: rgba(255,255,255,0.55); }
+    .page-header-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .last-run-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 12px; color: rgba(255,255,255,0.55); font-weight: 500;
+    }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-500); animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+      50% { box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+    }
+
+    /* ── KPI BAR ── */
+    .kpi-bar {
+      max-width: 1360px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      background: rgba(255,255,255,0.06);
+      border-radius: 12px 12px 0 0; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08); border-bottom: none;
+    }
+    .kpi-bar.hidden { display: none; }
+    .kpi-cell { background: rgba(255,255,255,0.04); padding: 20px 28px; transition: background 0.2s; }
+    .kpi-cell:hover { background: rgba(255,255,255,0.08); }
+    .kpi-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 8px; }
+    .kpi-value { font-size: 34px; font-weight: 900; letter-spacing: -1.5px; line-height: 1; margin-bottom: 6px; color: white; }
+    .kpi-value.green { color: #4ADE80; }
+    .kpi-value.amber { color: #FCD34D; }
+    .kpi-value.red   { color: #FCA5A5; }
+    .kpi-sub { font-size: 12px; color: rgba(255,255,255,0.4); font-weight: 500; display: flex; align-items: center; gap: 4px; }
+    .kpi-sub.up { color: #86EFAC; }
+    .kpi-sub.down { color: #FCA5A5; }
+
+    /* ── MAIN ── */
+    .main { max-width: 1360px; margin: 0 auto; padding: 32px 40px 60px; }
+
+    /* ── WEEKLY BANNER ── */
+    .weekly-banner {
+      background: linear-gradient(135deg, var(--navy-800) 0%, #1A3DAF 100%);
+      border-radius: 14px; padding: 24px 32px;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 28px; border: 1px solid rgba(255,255,255,0.1);
+      position: relative; overflow: hidden;
+    }
+    .weekly-banner::before { content: ''; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,0.03); }
+    .weekly-banner-left h3 { font-size: 17px; font-weight: 800; color: white; margin-bottom: 4px; }
+    .weekly-banner-left p { font-size: 13px; color: rgba(255,255,255,0.6); }
+    .weekly-stats { display: flex; gap: 40px; align-items: center; }
+    .weekly-stat { text-align: center; }
+    .weekly-stat-val { font-size: 26px; font-weight: 900; color: white; letter-spacing: -1px; }
+    .weekly-stat-lbl { font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-top: 2px; }
+    .weekly-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.12); }
+
+    /* ── FILTERS ── */
+    .filters-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; }
+    .filter-tabs { display: flex; background: white; border: 1px solid var(--gray-200); border-radius: 10px; padding: 3px; gap: 2px; }
+    .ftab {
+      padding: 6px 13px; border-radius: 7px; font-size: 13px; font-weight: 600;
+      cursor: pointer; color: var(--gray-600); background: none; border: none;
+      font-family: inherit; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+    }
+    .ftab:hover:not(.active) { background: var(--gray-100); }
+    .ftab.active { background: var(--navy-900); color: white; }
+    .ftab-count { background: var(--blue-500); color: white; border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 700; }
+    .ftab.active .ftab-count { background: rgba(255,255,255,0.2); }
+    .filters-right { display: flex; align-items: center; gap: 10px; }
+    .search-wrap { position: relative; }
+    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--gray-400); pointer-events: none; }
+    .search-input {
+      padding: 8px 14px 8px 34px; border: 1px solid var(--gray-200); border-radius: 8px;
+      font-size: 13px; font-family: inherit; background: white; width: 220px; outline: none; color: var(--gray-900);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .search-input:focus { border-color: var(--blue-500); box-shadow: 0 0 0 3px rgba(67,98,239,0.1); }
+    .sel { padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 13px; font-family: inherit; background: white; color: var(--gray-700); cursor: pointer; outline: none; }
+
+    /* ── PROPERTY CARD ── */
+    .prop-list { display: flex; flex-direction: column; gap: 14px; }
+    .prop-card {
+      background: white; border: 1px solid var(--gray-200); border-radius: 16px; overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04); border-left: 4px solid transparent;
+    }
+    .prop-card:hover { border-color: var(--blue-400); box-shadow: 0 6px 24px rgba(67,98,239,0.09); transform: translateY(-1px); }
+    .prop-card.high   { border-left-color: var(--red-500); }
+    .prop-card.medium { border-left-color: var(--amber-500); }
+    .prop-card.low    { border-left-color: var(--green-500); }
+    .prop-body { display: grid; grid-template-columns: 260px 1fr 220px; padding: 22px 24px; gap: 24px; align-items: start; }
+    .prop-meta {}
+    .prop-id-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .prop-id { font-size: 11px; font-weight: 700; color: var(--gray-400); letter-spacing: 0.5px; text-transform: uppercase; }
+    .pri-badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+    .pri-badge.high   { background: var(--red-100);   color: var(--red-700); }
+    .pri-badge.medium { background: var(--amber-100); color: var(--amber-700); }
+    .pri-badge.low    { background: var(--green-100); color: var(--green-700); }
+    .prop-name { font-size: 16px; font-weight: 800; color: var(--gray-900); margin-bottom: 3px; letter-spacing: -0.2px; line-height: 1.3; }
+    .prop-loc { font-size: 12px; color: var(--gray-500); margin-bottom: 14px; display: flex; align-items: center; gap: 4px; }
+    .issue-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+    .itag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .itag.pricing   { background: var(--amber-100); color: var(--amber-700); }
+    .itag.occupancy { background: var(--red-100);   color: var(--red-600); }
+    .itag.calendar  { background: var(--purple-100); color: var(--purple-700); }
+    .itag.content   { background: var(--blue-100);  color: #2D4FD6; }
+    .itag.declining    { background: #FEE2E2; color: #991B1B; }
+    .itag.cancellation { background: #FFF1F2; color: #BE123C; }
+    .expert-row { display: flex; align-items: center; gap: 8px; }
+    .expert-av { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--blue-500), #7B96F5); color: white; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .expert-lbl { font-size: 12px; color: var(--gray-500); }
+    .expert-lbl strong { color: var(--gray-700); font-weight: 600; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+    .met { background: var(--gray-50); border-radius: 10px; padding: 12px; border: 1px solid var(--gray-100); }
+    .met-lbl { font-size: 10px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; }
+    .met-val { font-size: 20px; font-weight: 800; color: var(--gray-900); letter-spacing: -0.5px; line-height: 1.1; }
+    .met-sub { font-size: 11px; color: var(--gray-400); margin-top: 3px; display: flex; align-items: center; gap: 3px; }
+    .met-sub .neg { color: var(--red-500); font-weight: 600; }
+    .met-sub .pos { color: var(--green-600); font-weight: 600; }
+    .occ-bar { height: 4px; background: var(--gray-200); border-radius: 2px; position: relative; margin-top: 6px; }
+    .occ-fill { height: 100%; border-radius: 2px; position: absolute; top: 0; left: 0; }
+    .occ-marker { position: absolute; top: -3px; width: 2px; height: 10px; background: var(--blue-500); border-radius: 1px; }
+    .occ-labels { display: flex; justify-content: space-between; font-size: 10px; margin-top: 5px; }
+    .metrics-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .met-sm { background: var(--gray-50); border-radius: 10px; padding: 10px 12px; border: 1px solid var(--gray-100); }
+    .met-sm-lbl { font-size: 10px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+    .met-sm-val { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
+    .score-bar { height: 3px; background: var(--gray-200); border-radius: 2px; margin-top: 5px; }
+    .score-fill { height: 100%; border-radius: 2px; }
+    .opp-panel { display: flex; flex-direction: column; align-items: flex-end; height: 100%; }
+    .opp-top { text-align: right; margin-bottom: auto; }
+    .opp-lbl { font-size: 10px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 4px; }
+    .opp-val { font-size: 36px; font-weight: 900; color: var(--green-600); letter-spacing: -1.5px; line-height: 1; margin-bottom: 6px; }
+    .opp-desc { font-size: 12px; color: var(--gray-500); line-height: 1.5; max-width: 200px; text-align: right; }
+    .src-chips { display: flex; gap: 5px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+    .src-chip { padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; }
+    .src-chip.looker     { background: #EEF2FF; color: #4362EF; }
+    .src-chip.wheelhouse { background: #F0FDF4; color: #15803D; }
+    .src-chip.keydata    { background: #FFF7ED; color: #C2410C; }
+    .src-chip.hubspot    { background: #FFF1F0; color: #E8302A; }
+    .src-chip.mock       { background: var(--gray-100); color: var(--gray-500); }
+    .prop-footer { background: var(--gray-50); border-top: 1px solid var(--gray-100); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .action-hint { font-size: 12px; color: var(--gray-600); }
+    .action-hint strong { color: var(--gray-800); font-weight: 600; }
+    .action-btns { display: flex; gap: 7px; flex-shrink: 0; }
+    .abtn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 13px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: all 0.15s; }
+    .abtn.ghost { background: white; color: var(--gray-700); border: 1px solid var(--gray-200); }
+    .abtn.ghost:hover { background: var(--gray-50); border-color: var(--gray-300); }
+    .abtn.teal  { background: #ECFDF5; color: #065F46; }
+    .abtn.teal:hover  { background: #D1FAE5; }
+    .abtn.blue  { background: var(--blue-500); color: white; }
+    .abtn.blue:hover  { background: #3451D1; }
+
+    /* ── DASHBOARD VIEW ── */
+    .welcome-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+    .welcome-title { font-size: 22px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+    .welcome-sub { font-size: 14px; color: var(--gray-500); }
+    .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+    .dash-card { background: white; border: 1px solid var(--gray-200); border-radius: 16px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .dash-card-title { font-size: 14px; font-weight: 700; color: var(--gray-700); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    .dash-card-title a { font-size: 12px; color: var(--blue-500); font-weight: 600; cursor: pointer; text-decoration: none; }
+    .dash-card-title a:hover { text-decoration: underline; }
+    .priority-list { display: flex; flex-direction: column; gap: 10px; }
+    .priority-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; background: var(--gray-50); border-radius: 10px;
+      border: 1px solid var(--gray-100); transition: border-color 0.15s;
+    }
+    .priority-item:hover { border-color: var(--blue-300); background: var(--blue-50); }
+    .priority-item-left { display: flex; align-items: center; gap: 12px; }
+    .priority-item-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .priority-item-name { font-size: 14px; font-weight: 700; color: var(--gray-900); margin-bottom: 2px; }
+    .priority-item-issue { font-size: 11px; color: var(--gray-500); }
+    .priority-item-value { font-size: 16px; font-weight: 900; color: var(--green-600); letter-spacing: -0.5px; }
+    .activity-list { display: flex; flex-direction: column; gap: 0; }
+    .activity-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--gray-100); }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+    .activity-dot.blue { background: var(--blue-100); }
+    .activity-dot.green { background: var(--green-100); }
+    .activity-dot.amber { background: var(--amber-100); }
+    .activity-text { font-size: 13px; color: var(--gray-700); line-height: 1.5; }
+    .activity-time { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+    .dash-summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+    .dash-stat { background: white; border: 1px solid var(--gray-200); border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .dash-stat-val { font-size: 28px; font-weight: 900; color: var(--gray-900); letter-spacing: -1px; margin-bottom: 4px; }
+    .dash-stat-val.green { color: var(--green-600); }
+    .dash-stat-val.amber { color: var(--amber-600); }
+    .dash-stat-val.red   { color: var(--red-600); }
+    .dash-stat-lbl { font-size: 12px; color: var(--gray-500); font-weight: 500; }
+
+    /* ── PROPERTIES TABLE ── */
+    .table-wrap { background: white; border: 1px solid var(--gray-200); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .table-header { padding: 18px 24px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
+    .table-header-title { font-size: 15px; font-weight: 700; color: var(--gray-900); }
+    .table-header-sub { font-size: 13px; color: var(--gray-500); }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 16px; font-size: 11px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.5px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); white-space: nowrap; }
+    td { padding: 14px 16px; font-size: 13px; color: var(--gray-700); border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--blue-50); }
+    .td-name { font-weight: 700; color: var(--gray-900); margin-bottom: 2px; font-size: 14px; }
+    .td-loc { font-size: 11px; color: var(--gray-400); }
+    .td-id { font-size: 11px; font-weight: 700; color: var(--gray-400); letter-spacing: 0.3px; }
+    .occ-indicator { display: flex; align-items: center; gap: 6px; }
+    .occ-bar-sm { width: 48px; height: 4px; background: var(--gray-200); border-radius: 2px; position: relative; }
+    .occ-fill-sm { height: 100%; border-radius: 2px; position: absolute; top: 0; left: 0; }
+    .tbl-tag { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: 600; margin: 1px; }
+    .tbl-act { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--gray-200); background: white; color: var(--blue-500); font-family: inherit; transition: all 0.15s; }
+    .tbl-act:hover { background: var(--blue-100); border-color: var(--blue-400); }
+
+    /* ── REPORTS VIEW ── */
+    .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+    .report-card { background: white; border: 1px solid var(--gray-200); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .report-card-hd { padding: 18px 24px; border-bottom: 1px solid var(--gray-100); }
+    .report-card-hd h3 { font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 2px; }
+    .report-card-hd p { font-size: 12px; color: var(--gray-500); }
+    .report-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid var(--gray-50); }
+    .report-row:last-child { border-bottom: none; }
+    .report-row:hover { background: var(--gray-50); }
+    .report-row-left { display: flex; align-items: center; gap: 12px; }
+    .report-row-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .report-row-name { font-size: 13px; font-weight: 600; color: var(--gray-900); margin-bottom: 1px; }
+    .report-row-sub { font-size: 11px; color: var(--gray-500); }
+    .report-row-value { text-align: right; }
+    .report-row-amount { font-size: 16px; font-weight: 800; color: var(--green-600); letter-spacing: -0.5px; }
+    .report-row-count { font-size: 11px; color: var(--gray-500); }
+    .bar-chart-row { display: flex; align-items: center; gap: 12px; padding: 10px 24px; }
+    .bar-chart-label { font-size: 12px; color: var(--gray-600); font-weight: 500; width: 120px; flex-shrink: 0; }
+    .bar-chart-bar { flex: 1; height: 8px; background: var(--gray-100); border-radius: 4px; position: relative; }
+    .bar-chart-fill { height: 100%; border-radius: 4px; position: absolute; top: 0; left: 0; }
+    .bar-chart-val { font-size: 12px; font-weight: 700; color: var(--gray-700); width: 50px; text-align: right; flex-shrink: 0; }
+    .report-section-title { font-size: 18px; font-weight: 800; color: var(--gray-900); margin-bottom: 16px; }
+
+    /* ── SETTINGS VIEW ── */
+    .settings-section { margin-bottom: 36px; }
+    .settings-section-title { font-size: 16px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+    .settings-section-sub { font-size: 13px; color: var(--gray-500); margin-bottom: 16px; }
+    .api-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .api-card { background: white; border: 1px solid var(--gray-200); border-radius: 14px; padding: 20px 16px; text-align: center; transition: border-color 0.2s, box-shadow 0.2s; }
+    .api-card:hover { border-color: var(--blue-400); box-shadow: 0 4px 12px rgba(67,98,239,0.08); }
+    .api-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-bottom: 12px; }
+    .api-dot.mock { background: var(--amber-500); box-shadow: 0 0 0 3px var(--amber-100); }
+    .api-dot.live { background: var(--green-500); box-shadow: 0 0 0 3px var(--green-100); }
+    .api-name { font-size: 14px; font-weight: 800; color: var(--gray-900); margin-bottom: 3px; }
+    .api-role { font-size: 11px; color: var(--gray-500); margin-bottom: 10px; line-height: 1.4; }
+    .api-status { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .api-status.mock { color: var(--amber-600); }
+    .api-status.live { color: var(--green-600); }
+    .api-btn { margin-top: 12px; padding: 5px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--gray-200); background: white; color: var(--blue-500); font-family: inherit; transition: all 0.15s; display: block; width: 100%; }
+    .api-btn:hover { background: var(--blue-100); border-color: var(--blue-400); }
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .settings-row { background: white; border: 1px solid var(--gray-200); border-radius: 12px; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .settings-row-left h4 { font-size: 14px; font-weight: 600; color: var(--gray-900); margin-bottom: 3px; }
+    .settings-row-left p { font-size: 12px; color: var(--gray-500); }
+    .toggle { width: 40px; height: 22px; background: var(--gray-200); border-radius: 11px; position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+    .toggle.on { background: var(--blue-500); }
+    .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: white; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .toggle.on::after { transform: translateX(18px); }
+    .schedule-opts { display: flex; gap: 8px; }
+    .sched-btn { padding: 6px 14px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--gray-200); background: white; color: var(--gray-600); font-family: inherit; transition: all 0.15s; }
+    .sched-btn.active { background: var(--navy-900); color: white; border-color: var(--navy-900); }
+
+    /* ── TOAST ── */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy-900); color: white; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); z-index: 500; transform: translateY(110%); opacity: 0; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s; max-width: 380px; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── ANALYSIS OVERLAY ── */
+    .overlay { position: fixed; inset: 0; background: rgba(10,22,64,0.82); display: flex; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .overlay.show { opacity: 1; pointer-events: all; }
+    .modal { background: white; border-radius: 20px; padding: 40px 36px; text-align: center; max-width: 420px; width: 92%; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+    .spinner { width: 52px; height: 52px; border: 4px solid var(--blue-100); border-top-color: var(--blue-500); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 20px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .modal-title { font-size: 20px; font-weight: 800; color: var(--gray-900); margin-bottom: 6px; }
+    .modal-sub { font-size: 14px; color: var(--gray-500); margin-bottom: 4px; }
+
+    /* ── EMAIL MODAL ── */
+    .email-modal { background: white; border-radius: 20px; padding: 32px 36px; max-width: 600px; width: 94%; box-shadow: 0 20px 60px rgba(0,0,0,0.2); text-align: left; max-height: 90vh; overflow-y: auto; }
+    .email-modal h3 { font-size: 18px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+    .email-modal-sub { font-size: 13px; color: var(--gray-500); margin-bottom: 20px; }
+    .email-field { margin-bottom: 14px; }
+    .email-field label { display: block; font-size: 11px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+    .email-field input, .email-field textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--gray-200); border-radius: 9px; font-size: 13px; font-family: inherit; color: var(--gray-900); outline: none; transition: border-color 0.15s; resize: vertical; background: white; }
+    .email-field input:focus, .email-field textarea:focus { border-color: var(--blue-500); }
+    .email-field textarea { min-height: 220px; line-height: 1.65; }
+    .email-modal-btns { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; align-items: center; }
+    .email-modal-feedback { margin-top: 12px; font-size: 13px; color: var(--green-700); display: none; font-weight: 500; }
+    .step-list { text-align: left; margin-top: 20px; }
+    .step-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; font-size: 13px; color: var(--gray-600); border-bottom: 1px solid var(--gray-100); }
+    .step-row:last-child { border-bottom: none; }
+    .step-ic { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .step-ic.done    { background: var(--green-100); color: var(--green-600); }
+    .step-ic.running { border: 2px solid var(--blue-500); border-top-color: transparent; animation: spin 0.7s linear infinite; }
+    .step-ic.pending { background: var(--gray-100); color: var(--gray-400); }
+
+    /* ── EMPTY STATE ── */
+    .empty { text-align: center; padding: 80px 20px; }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-title { font-size: 17px; font-weight: 700; color: var(--gray-700); margin-bottom: 6px; }
+    .empty-sub { font-size: 14px; color: var(--gray-400); }
+
+    .hidden { display: none !important; }
+    .section-hd { font-size: 17px; font-weight: 800; color: var(--gray-900); margin-bottom: 14px; margin-top: 40px; }
+    .section-hd:first-child { margin-top: 0; }
+
+    /* ── HISTORY PANEL ── */
+    .history-panel {
+      background: var(--gray-50); border-top: 1px solid var(--gray-200);
+      padding: 20px 24px 16px;
+    }
+    .hist-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .hist-tabs { display: flex; background: white; border: 1px solid var(--gray-200); border-radius: 8px; padding: 3px; gap: 2px; }
+    .htab {
+      padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;
+      cursor: pointer; color: var(--gray-500); background: none; border: none;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .htab:hover:not(.active) { background: var(--gray-100); color: var(--gray-700); }
+    .htab.active { background: var(--navy-900); color: white; }
+    .hist-period-badge {
+      font-size: 11px; font-weight: 600; color: var(--gray-500);
+      background: white; border: 1px solid var(--gray-200);
+      border-radius: 20px; padding: 3px 10px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .hist-period-badge.new-listing { background: var(--blue-50); border-color: var(--blue-200); color: #2D4FD6; }
+    .hist-chart-wrap { position: relative; margin-bottom: 6px; }
+    .hist-chart { width: 100%; overflow: hidden; border-radius: 8px; }
+    .hist-month-labels {
+      display: flex; justify-content: space-between;
+      padding: 4px 2px 0; margin-bottom: 14px;
+    }
+    .hist-month-labels span { font-size: 10px; color: var(--gray-400); font-weight: 500; text-align: center; flex: 1; }
+    .hist-legend { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+    .hist-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--gray-500); font-weight: 500; }
+    .hist-legend-dot { width: 10px; height: 3px; border-radius: 2px; }
+    .hist-legend-dash { width: 14px; height: 0; border-top: 2px dashed #4368E7; opacity: 0.6; }
+    .hist-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+    .hist-stat {
+      flex: 1; min-width: 120px; background: white; border: 1px solid var(--gray-200);
+      border-radius: 10px; padding: 12px 16px;
+    }
+    .hist-stat-val { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 3px; }
+    .hist-stat-val.up   { color: var(--green-600); }
+    .hist-stat-val.down { color: var(--red-500); }
+    .hist-stat-val.flat { color: var(--gray-500); }
+    .hist-stat-lbl { font-size: 11px; color: var(--gray-400); font-weight: 500; }
+    .hist-no-yoy { font-size: 12px; color: var(--gray-500); background: white; border: 1px solid var(--gray-200); border-radius: 10px; padding: 12px 16px; }
+    .hist-toggle-btn { color: var(--blue-500) !important; border-color: var(--blue-200) !important; }
+    .hist-toggle-btn:hover { background: var(--blue-50) !important; }
+    .hist-toggle-btn.open { background: var(--blue-50) !important; }
+
+    /* ── Demo build banner ── */
+    .demo-banner { background:linear-gradient(90deg,#1E1B4B,#3730A3); color:#fff; padding:9px 24px;
+      font-size:12.5px; font-weight:600; display:flex; align-items:center; justify-content:center;
+      gap:10px; letter-spacing:0.2px; text-align:center; flex-wrap:wrap; }
+    .demo-banner .pill { background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.28);
+      padding:2px 9px; border-radius:20px; font-size:10.5px; font-weight:800;
+      letter-spacing:0.6px; text-transform:uppercase; }
+    .demo-banner span.txt { opacity:0.9; font-weight:500; }
+    .demo-banner .byline { border-left:1px solid rgba(255,255,255,0.25); padding-left:14px; margin-left:4px;
+      opacity:0.95; font-weight:500; white-space:nowrap; }
+    .demo-banner .byline strong { font-weight:800; }
+    @media (max-width: 900px) {
+      .demo-banner .byline { border-left:none; padding-left:0; margin-left:0; }
+    }
+    /* ── Build credit footer ── */
+    .build-credit { margin:48px 24px 40px; padding:26px 30px; border-radius:16px; background:white;
+      border:1px solid var(--gray-200); box-shadow:0 1px 4px rgba(0,0,0,0.04);
+      display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+    .build-credit .bc-avatar { width:46px; height:46px; border-radius:50%; flex-shrink:0;
+      background:linear-gradient(135deg,#4368E7,#3730A3); color:#fff; display:flex;
+      align-items:center; justify-content:center; font-weight:800; font-size:15px; letter-spacing:0.5px; }
+    .build-credit .bc-text { flex:1; min-width:240px; }
+    .build-credit .bc-name { font-size:15px; font-weight:800; color:var(--gray-900); margin-bottom:3px; }
+    .build-credit .bc-desc { font-size:13px; color:var(--gray-500); line-height:1.6; }
+    .build-credit .bc-tags { display:flex; gap:7px; flex-wrap:wrap; }
+    .build-credit .bc-tag { font-size:10.5px; font-weight:700; letter-spacing:0.4px; text-transform:uppercase;
+      background:var(--gray-100); color:var(--gray-600); padding:4px 10px; border-radius:20px; }
+    .logo-demo-tag { background:rgba(255,255,255,0.2); color:#fff; font-size:9.5px; font-weight:800;
+      letter-spacing:0.7px; padding:2px 7px; border-radius:5px; margin-left:10px;
+      text-transform:uppercase; vertical-align:middle; }
+    .src-chip.demo, .src-chip['data-warehouse'] { background:#EEF2FF; color:#4362EF; }
+  </style>
+</head>
+<body>
+
+<!-- ════════ DEMO BANNER ════════ -->
+<div class="demo-banner">
+  <span class="pill">Demo</span>
+  <span class="txt">Illustrative build — all properties, hosts, experts and figures are fictional sample data. Not connected to any live system.</span>
+  <span class="byline">Designed &amp; built by <strong>Greg Hood</strong></span>
+</div>
+
+<!-- ════════ HEADER ════════ -->
+<header class="header">
+  <a class="logo" onclick="showView('dashboard')">
+    <!-- Real Travelnest logo SVG (white wordmark) -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 175 24" fill="none">
+      <g fill="#fff" clip-path="url(#tn-clip)">
+        <path d="M42.528 9.47a.5.5 0 0 1-.5.5h-3.116v6.656c0 .555.139.96.416 1.216.277.256.682.405 1.216.448.41.017.895.014 1.457-.008a.506.506 0 0 1 .527.504v2.77a.493.493 0 0 1-.445.492c-2.603.244-4.46-.038-5.571-.846-1.152-.853-1.728-2.379-1.728-4.576V9.97H32.5a.5.5 0 0 1-.5-.5V6.502a.5.5 0 0 1 .5-.5h2.284V2.5a.5.5 0 0 1 .5-.5h3.128a.5.5 0 0 1 .5.5v3.502h3.116a.5.5 0 0 1 .5.5V9.47zm6.648-.716c.384-1.024 1.014-1.792 1.888-2.304a5.802 5.802 0 0 1 2.477-.75c.275-.02.5.206.5.482v3.545c0 .3-.263.53-.562.523a4.83 4.83 0 0 0-2.83.808c-.982.662-1.473 1.76-1.473 3.296v7.148a.5.5 0 0 1-.5.5h-3.128a.5.5 0 0 1-.5-.5v-15a.5.5 0 0 1 .5-.5h3.628v2.752zm18.777-2.252a.5.5 0 0 1 .5-.5h3.128a.5.5 0 0 1 .5.5v15a.5.5 0 0 1-.5.5h-3.128a.5.5 0 0 1-.5-.5v-1.388c-1.237 1.557-2.976 2.336-5.216 2.336-2.133 0-3.968-.81-5.504-2.432-1.514-1.643-2.272-3.648-2.272-6.016s.758-4.362 2.272-5.984c1.536-1.642 3.37-2.464 5.504-2.464 2.24 0 3.979.779 5.216 2.336V6.502zm-7.616 10.764c.832.832 1.888 1.248 3.168 1.248 1.28 0 2.336-.416 3.168-1.248.853-.853 1.28-1.941 1.28-3.264 0-1.322-.427-2.4-1.28-3.232-.832-.853-1.888-1.28-3.168-1.28-1.28 0-2.336.427-3.168 1.28-.832.832-1.248 1.91-1.248 3.232 0 1.323.416 2.41 1.248 3.264zM85.595 6.338a.5.5 0 0 1 .472-.336h3.464a.5.5 0 0 1 .467.678l-5.7 15a.5.5 0 0 1-.467.322h-4.014a.5.5 0 0 1-.467-.322l-5.7-15a.5.5 0 0 1 .467-.678h3.463a.5.5 0 0 1 .472.337l3.756 10.863 3.787-10.864zm8.875 9.36c.554 2.005 2.058 3.008 4.511 3.008 1.403 0 2.503-.421 3.3-1.264a.547.547 0 0 1 .666-.116l2.476 1.429a.477.477 0 0 1 .148.708c-1.566 1.991-3.784 2.987-6.654 2.987-2.645 0-4.768-.8-6.368-2.4-1.6-1.6-2.4-3.616-2.4-6.048 0-2.41.79-4.416 2.368-6.016 1.579-1.621 3.606-2.432 6.08-2.432 2.347 0 4.278.81 5.792 2.432 1.536 1.622 2.304 3.627 2.304 6.016 0 .409-.031.836-.094 1.283a.484.484 0 0 1-.484.413H94.469zm-.065-3.2h8.16c-.234-1.088-.725-1.898-1.472-2.432-.725-.533-1.557-.8-2.496-.8-1.109 0-2.026.288-2.752.864-.725.555-1.205 1.344-1.44 2.368zm15.03 9.504a.5.5 0 0 1-.5-.5V2.5a.5.5 0 0 1 .5-.5h3.128a.5.5 0 0 1 .5.5v19.002a.5.5 0 0 1-.5.5h-3.128zm15.033-16.448c1.75 0 3.19.587 4.32 1.76 1.152 1.174 1.728 2.795 1.728 4.864v9.324a.5.5 0 0 1-.5.5h-3.128a.5.5 0 0 1-.5-.5V12.69c0-1.066-.288-1.877-.864-2.432-.576-.576-1.344-.864-2.304-.864-1.066 0-1.919.33-2.559.992-.64.662-.96 1.654-.96 2.976v8.14a.5.5 0 0 1-.5.5h-3.128a.5.5 0 0 1-.5-.5v-15a.5.5 0 0 1 .5-.5h3.128a.5.5 0 0 1 .5.5v1.292c1.002-1.493 2.591-2.24 4.767-2.24zm12.421 10.144c.555 2.005 2.059 3.008 4.512 3.008 1.403 0 2.503-.421 3.299-1.264a.547.547 0 0 1 .666-.116l2.477 1.429a.478.478 0 0 1 .148.708c-1.567 1.991-3.785 2.987-6.654 2.987-2.645 0-4.768-.8-6.368-2.4-1.6-1.6-2.4-3.616-2.4-6.048 0-2.41.789-4.416 2.368-6.016 1.579-1.621 3.605-2.432 6.08-2.432 2.347 0 4.277.81 5.792 2.432 1.536 1.622 2.304 3.627 2.304 6.016 0 .409-.032.836-.094 1.283a.486.486 0 0 1-.485.413h-11.645zm-.064-3.2h8.16c-.235-1.088-.725-1.898-1.472-2.432-.725-.533-1.557-.8-2.496-.8-1.109 0-2.027.288-2.752.864-.725.555-1.205 1.344-1.44 2.368zm18.372-1.952c0 .427.277.779.832 1.056.576.256 1.269.49 2.08.704.811.192 1.621.448 2.432.768.811.299 1.493.81 2.048 1.536.576.725.864 1.632.864 2.72 0 1.643-.619 2.912-1.856 3.808-1.216.875-2.741 1.312-4.576 1.312-3.101 0-5.271-1.131-6.509-3.393a.477.477 0 0 1 .194-.643l2.654-1.492c.273-.154.615-.018.763.258.543 1.017 1.509 1.526 2.898 1.526 1.472 0 2.208-.459 2.208-1.376 0-.427-.288-.768-.864-1.024-.555-.277-1.237-.523-2.048-.736a21.573 21.573 0 0 1-2.432-.8 5.169 5.169 0 0 1-2.08-1.504c-.554-.704-.832-1.579-.832-2.624 0-1.578.576-2.816 1.728-3.712 1.173-.917 2.624-1.376 4.352-1.376 1.301 0 2.485.299 3.552.896a6.265 6.265 0 0 1 2.261 2.063.473.473 0 0 1-.18.677l-2.607 1.422c-.253.138-.566.031-.726-.208-.522-.78-1.289-1.17-2.3-1.17-.533 0-.981.118-1.344.352a1.107 1.107 0 0 0-.512.96zM175 9.47a.5.5 0 0 1-.5.5h-3.116v6.656c0 .555.139.96.416 1.216.277.256.683.405 1.216.448.41.017.896.014 1.457-.008a.506.506 0 0 1 .527.504v2.77a.493.493 0 0 1-.445.492c-2.603.244-4.46-.038-5.571-.846-1.152-.853-1.728-2.379-1.728-4.576V9.97h-2.284a.5.5 0 0 1-.5-.5V6.502a.5.5 0 0 1 .5-.5h2.284V2.5a.5.5 0 0 1 .5-.5h3.128a.5.5 0 0 1 .5.5v3.502h3.116a.5.5 0 0 1 .5.5V9.47z"/>
+        <path fill-rule="evenodd" d="M24.004 18a2 2 0 0 1-.586 1.414l-4 4c-.412.413-.92.595-1.418.59-1.022-.01-1.996-.805-1.996-2.004V12a4 4 0 0 0-4-4h-10C.804 8 .007 7.023 0 6a1.958 1.958 0 0 1 .59-1.414l4-4A2 2 0 0 1 6.004 0h14a4 4 0 0 1 4 4v14zm-22-2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-4z" clip-rule="evenodd"/>
+      </g>
+      <defs><clipPath id="tn-clip"><path fill="#fff" d="M0 0h175v24H0z"/></clipPath></defs>
+    </svg>
+    <span class="logo-demo-tag">Demo</span>
+  </a>
+
+  <nav class="header-nav">
+    <button class="nav-link" data-view="dashboard" onclick="showView('dashboard')">Dashboard</button>
+    <button class="nav-link active" data-view="detector" onclick="showView('detector')">Revenue Detector</button>
+    <button class="nav-link" data-view="properties" onclick="showView('properties')">Properties</button>
+    <button class="nav-link" data-view="reports" onclick="showView('reports')">Reports</button>
+    <button class="nav-link" data-view="settings" onclick="showView('settings')">Settings</button>
+  </nav>
+
+  <div class="header-right">
+    <button class="btn btn-ghost-white" onclick="showAnalysis()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      Run Analysis
+    </button>
+    <button class="btn btn-primary" onclick="exportReport()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Export Report
+    </button>
+    <div class="avatar">GH</div>
+  </div>
+</header>
+
+<!-- ════════ PAGE HEADER ════════ -->
+<div class="page-header">
+  <div class="page-header-top">
+    <div>
+      <h1 class="page-title" id="page-title">Revenue Opportunity Detector</h1>
+      <p class="page-subtitle" id="page-subtitle">Automatically identify underperforming properties and surface high-value revenue actions</p>
+    </div>
+    <div class="page-header-actions">
+      <div class="last-run-badge" id="last-run-badge">
+        <span class="live-dot"></span>
+        Last run: Mon 9 Mar 2026 · 09:00
+      </div>
+      <div style="font-size:12px; color:rgba(255,255,255,0.35); text-align:right;" id="next-run-line">
+        Next run: Mon 16 Mar · 09:00 &nbsp;·&nbsp; All data sources: mock
+      </div>
+    </div>
+  </div>
+  <div class="kpi-bar" id="kpi-bar">
+    <div class="kpi-cell">
+      <div class="kpi-label">Properties Flagged</div>
+      <div class="kpi-value amber">8</div>
+      <div class="kpi-sub down"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>2 new this week</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-label">Total Annual Opportunity</div>
+      <div class="kpi-value green">£34,200</div>
+      <div class="kpi-sub up"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7 7 7"/></svg>Recoverable TBV</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-label">Avg Occupancy Gap</div>
+      <div class="kpi-value red">−21 pts</div>
+      <div class="kpi-sub">vs market benchmark (KeyData)</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-label">Actions Pending</div>
+      <div class="kpi-value">12</div>
+      <div class="kpi-sub down"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>Unassigned HubSpot tasks</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ VIEWS ════════ -->
+
+<!-- ── DASHBOARD ── -->
+<div id="view-dashboard" class="view hidden">
+  <main class="main">
+    <div class="welcome-row">
+      <div>
+        <div class="welcome-title" id="welcome-title">Good morning, Greg 👋</div>
+        <div class="welcome-sub" id="welcome-sub">Here's your portfolio revenue snapshot for w/c 3 March 2026</div>
+      </div>
+      <button class="btn btn-primary" onclick="showView('detector')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        View All Opportunities
+      </button>
+    </div>
+
+    <div class="dash-summary-grid">
+      <div class="dash-stat">
+        <div class="dash-stat-val amber">8</div>
+        <div class="dash-stat-lbl">Properties flagged this week</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-val green">£34,200</div>
+        <div class="dash-stat-lbl">Total recoverable TBV</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-val red">3</div>
+        <div class="dash-stat-lbl">High priority actions</div>
+      </div>
+      <div class="dash-stat">
+        <div class="dash-stat-val">12</div>
+        <div class="dash-stat-lbl">Tasks pending assignment</div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="dash-card">
+        <div class="dash-card-title">Top Priority Opportunities <a onclick="showView('detector')">View all →</a></div>
+        <div class="priority-list">
+          <div class="priority-item">
+            <div class="priority-item-left">
+              <div class="priority-item-dot" style="background:#EF4444"></div>
+              <div>
+                <div class="priority-item-name">Cotswolds Manor House</div>
+                <div class="priority-item-issue">💰 Priced 20% below market · Priya Raman</div>
+              </div>
+            </div>
+            <div class="priority-item-value">+£8,200</div>
+          </div>
+          <div class="priority-item">
+            <div class="priority-item-left">
+              <div class="priority-item-dot" style="background:#EF4444"></div>
+              <div>
+                <div class="priority-item-name">Lake District Cabin</div>
+                <div class="priority-item-issue">📉 Low occupancy + pricing · Alex Hunter</div>
+              </div>
+            </div>
+            <div class="priority-item-value">+£6,500</div>
+          </div>
+          <div class="priority-item">
+            <div class="priority-item-left">
+              <div class="priority-item-dot" style="background:#EF4444"></div>
+              <div>
+                <div class="priority-item-name">Loch Lomond Retreat</div>
+                <div class="priority-item-issue">⚠️ Declining −18% YoY · Daniel Okafor</div>
+              </div>
+            </div>
+            <div class="priority-item-value">+£5,800</div>
+          </div>
+          <div class="priority-item">
+            <div class="priority-item-left">
+              <div class="priority-item-dot" style="background:#F59E0B"></div>
+              <div>
+                <div class="priority-item-name">Norfolk Broads Boathouse</div>
+                <div class="priority-item-issue">⚠️ TBV declining −23% YoY · Alex Hunter</div>
+              </div>
+            </div>
+            <div class="priority-item-value">+£4,400</div>
+          </div>
+          <div class="priority-item">
+            <div class="priority-item-left">
+              <div class="priority-item-dot" style="background:#F59E0B"></div>
+              <div>
+                <div class="priority-item-name">Harbour View Cottage</div>
+                <div class="priority-item-issue">💰 Priced 18% below market · Daniel Okafor</div>
+              </div>
+            </div>
+            <div class="priority-item-value">+£3,200</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-title">Recent Activity</div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <div class="activity-dot blue">🔍</div>
+            <div>
+              <div class="activity-text">Weekly analysis completed — 8 opportunities identified</div>
+              <div class="activity-time">Today, 09:00</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot green">✅</div>
+            <div>
+              <div class="activity-text">Pricing review completed for #44521 Norfolk Broads Boathouse — ADR increased £28</div>
+              <div class="activity-time">Fri 6 Mar, 14:32</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot blue">📧</div>
+            <div>
+              <div class="activity-text">Host insight email sent for #91205 Loch Lomond Retreat</div>
+              <div class="activity-time">Fri 6 Mar, 11:15</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot amber">⚡</div>
+            <div>
+              <div class="activity-text">HubSpot task created for #82734 Harbour View Cottage, assigned to Daniel Okafor</div>
+              <div class="activity-time">Thu 5 Mar, 09:47</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot green">✅</div>
+            <div>
+              <div class="activity-text">Calendar unblocked for #19847 Brighton Beachfront Studio — 12 days freed up</div>
+              <div class="activity-time">Wed 4 Mar, 16:20</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ── REVENUE DETECTOR ── -->
+<div id="view-detector" class="view">
+  <main class="main">
+    <div class="weekly-banner">
+      <div class="weekly-banner-left">
+        <h3 id="weekly-banner-title">Weekly Revenue Report &mdash; w/c 3 March 2026</h3>
+        <p>8 properties flagged across your portfolio &middot; £34,200 in recoverable TBV identified this week</p>
+      </div>
+      <div class="weekly-stats">
+        <div class="weekly-stat"><div class="weekly-stat-val">8</div><div class="weekly-stat-lbl">Flagged</div></div>
+        <div class="weekly-divider"></div>
+        <div class="weekly-stat"><div class="weekly-stat-val">3</div><div class="weekly-stat-lbl">High Priority</div></div>
+        <div class="weekly-divider"></div>
+        <div class="weekly-stat"><div class="weekly-stat-val">5</div><div class="weekly-stat-lbl">Notified</div></div>
+        <div class="weekly-divider"></div>
+        <div class="weekly-stat"><div class="weekly-stat-val">£34k</div><div class="weekly-stat-lbl">Opportunity</div></div>
+      </div>
+    </div>
+
+    <div class="filters-bar">
+      <div class="filter-tabs">
+        <button class="ftab active" data-filter="all" onclick="setFilter('all',this)">All Issues <span class="ftab-count">8</span></button>
+        <button class="ftab" data-filter="pricing" onclick="setFilter('pricing',this)">Pricing <span class="ftab-count">3</span></button>
+        <button class="ftab" data-filter="occupancy" onclick="setFilter('occupancy',this)">Occupancy <span class="ftab-count">4</span></button>
+        <button class="ftab" data-filter="calendar" onclick="setFilter('calendar',this)">Calendar <span class="ftab-count">2</span></button>
+        <button class="ftab" data-filter="content" onclick="setFilter('content',this)">Content <span class="ftab-count">1</span></button>
+        <button class="ftab" data-filter="declining" onclick="setFilter('declining',this)">Declining <span class="ftab-count">2</span></button>
+        <button class="ftab" data-filter="cancellation" onclick="setFilter('cancellation',this)">Cancellations <span class="ftab-count">0</span></button>
+      </div>
+      <div class="filters-right">
+        <div class="search-wrap">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke-linecap="round" stroke-width="2"/></svg>
+          <input class="search-input" type="text" placeholder="Search property or ID…" oninput="setSearch(this.value)">
+        </div>
+        <select class="sel" onchange="setSort(this.value)">
+          <option value="opportunity">Highest Opportunity</option>
+          <option value="priority">Priority</option>
+          <option value="id">Property ID</option>
+          <option value="occupancy">Lowest Occupancy</option>
+        </select>
+        <select class="sel" onchange="setExpert(this.value)">
+          <option value="all">All Experts</option>
+          <option value="Daniel Okafor">Daniel Okafor</option>
+          <option value="Alex Hunter">Alex Hunter</option>
+          <option value="Priya Raman">Priya Raman</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="prop-list" id="prop-list"></div>
+  </main>
+</div>
+
+<!-- ── PROPERTIES ── -->
+<div id="view-properties" class="view hidden">
+  <main class="main">
+    <div class="table-wrap">
+      <div class="table-header">
+        <div>
+          <div class="table-header-title">All Properties</div>
+          <div class="table-header-sub">8 properties in your managed portfolio</div>
+        </div>
+        <div class="filters-right">
+          <div class="search-wrap">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke-linecap="round" stroke-width="2"/></svg>
+            <input class="search-input" type="text" placeholder="Search…" style="width:180px">
+          </div>
+          <select class="sel"><option>All Experts</option><option>Daniel Okafor</option><option>Alex Hunter</option><option>Priya Raman</option></select>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Expert</th>
+            <th>Occupancy</th>
+            <th>Nightly Rate</th>
+            <th>Annual TBV</th>
+            <th>Issues</th>
+            <th>Opportunity</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="properties-table-body"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<!-- ── REPORTS ── -->
+<div id="view-reports" class="view hidden">
+  <main class="main">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+      <div>
+        <div style="font-size:22px; font-weight:900; color:var(--gray-900); letter-spacing:-0.5px; margin-bottom:4px;">Weekly Report</div>
+        <div style="font-size:14px; color:var(--gray-500);" id="report-date-sub">w/c 3 March 2026 · Generated Monday 09:00</div>
+      </div>
+      <button class="btn btn-primary" onclick="exportReport()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Export PDF
+      </button>
+    </div>
+
+    <div class="report-grid">
+      <div class="report-card">
+        <div class="report-card-hd"><h3>Issues by Type</h3><p>Breakdown of flagged properties this week</p></div>
+        <div class="report-row">
+          <div class="report-row-left">
+            <div class="report-row-icon" style="background:var(--amber-100)">💰</div>
+            <div><div class="report-row-name">Below Market Price</div><div class="report-row-sub">3 properties flagged</div></div>
+          </div>
+          <div class="report-row-value"><div class="report-row-amount">+£14,900</div><div class="report-row-count">opportunity</div></div>
+        </div>
+        <div class="report-row">
+          <div class="report-row-left">
+            <div class="report-row-icon" style="background:var(--red-100)">📉</div>
+            <div><div class="report-row-name">Low Occupancy</div><div class="report-row-sub">4 properties flagged</div></div>
+          </div>
+          <div class="report-row-value"><div class="report-row-amount">+£16,800</div><div class="report-row-count">opportunity</div></div>
+        </div>
+        <div class="report-row">
+          <div class="report-row-left">
+            <div class="report-row-icon" style="background:var(--purple-100)">📅</div>
+            <div><div class="report-row-name">Availability Gaps</div><div class="report-row-sub">2 properties flagged</div></div>
+          </div>
+          <div class="report-row-value"><div class="report-row-amount">+£4,500</div><div class="report-row-count">opportunity</div></div>
+        </div>
+        <div class="report-row">
+          <div class="report-row-left">
+            <div class="report-row-icon" style="background:#FEE2E2">⚠️</div>
+            <div><div class="report-row-name">Declining Performance</div><div class="report-row-sub">2 properties flagged</div></div>
+          </div>
+          <div class="report-row-value"><div class="report-row-amount">+£10,200</div><div class="report-row-count">opportunity</div></div>
+        </div>
+        <div class="report-row">
+          <div class="report-row-left">
+            <div class="report-row-icon" style="background:var(--blue-100)">📝</div>
+            <div><div class="report-row-name">Incomplete Listing</div><div class="report-row-sub">1 property flagged</div></div>
+          </div>
+          <div class="report-row-value"><div class="report-row-amount">+£1,800</div><div class="report-row-count">opportunity</div></div>
+        </div>
+      </div>
+
+      <div class="report-card">
+        <div class="report-card-hd"><h3>By Property Expert</h3><p>Opportunity value by assigned expert</p></div>
+        <div style="padding: 20px 24px 8px;">
+          <div class="bar-chart-row" style="padding: 0 0 12px;">
+            <div class="bar-chart-label">Daniel Okafor</div>
+            <div class="bar-chart-bar"><div class="bar-chart-fill" style="width:70%; background:var(--blue-500);"></div></div>
+            <div class="bar-chart-val">£11,400</div>
+          </div>
+          <div class="bar-chart-row" style="padding: 0 0 12px;">
+            <div class="bar-chart-label">Alex Hunter</div>
+            <div class="bar-chart-bar"><div class="bar-chart-fill" style="width:88%; background:#7B96F5;"></div></div>
+            <div class="bar-chart-val">£14,300</div>
+          </div>
+          <div class="bar-chart-row" style="padding: 0 0 12px;">
+            <div class="bar-chart-label">Priya Raman</div>
+            <div class="bar-chart-bar"><div class="bar-chart-fill" style="width:63%; background:#A5B4FC;"></div></div>
+            <div class="bar-chart-val">£10,300</div>
+          </div>
+        </div>
+        <div class="report-card-hd" style="border-top:1px solid var(--gray-100); margin-top:8px;"><h3>Actions Taken This Week</h3><p>Closed-loop follow-up summary</p></div>
+        <div class="report-row">
+          <div class="report-row-left"><div class="report-row-icon" style="background:var(--green-100)">✅</div><div><div class="report-row-name">Pricing Reviews Completed</div></div></div>
+          <div class="report-row-value"><div style="font-size:20px; font-weight:900; color:var(--gray-900);">2</div></div>
+        </div>
+        <div class="report-row">
+          <div class="report-row-left"><div class="report-row-icon" style="background:var(--blue-100)">📧</div><div><div class="report-row-name">Host Emails Sent</div></div></div>
+          <div class="report-row-value"><div style="font-size:20px; font-weight:900; color:var(--gray-900);">5</div></div>
+        </div>
+        <div class="report-row">
+          <div class="report-row-left"><div class="report-row-icon" style="background:var(--amber-100)">⚡</div><div><div class="report-row-name">HubSpot Tasks Created</div></div></div>
+          <div class="report-row-value"><div style="font-size:20px; font-weight:900; color:var(--gray-900);">7</div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ── SETTINGS ── -->
+<div id="view-settings" class="view hidden">
+  <main class="main">
+
+    <!-- Demo notice (live-connection panels removed in demo build) -->
+    <div class="settings-section">
+      <div class="settings-section-title">About This Demo</div>
+      <div class="settings-section-sub">How the demo build differs from the production tool</div>
+      <div style="background:white; border:1px solid var(--gray-200); border-radius:16px; padding:28px; box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+        <div style="display:flex; gap:14px; align-items:flex-start; background:#EEF2FF; border:1px solid #C7D2FE; border-radius:12px; padding:16px 18px; margin-bottom:22px;">
+          <span style="font-size:20px; line-height:1;">🧪</span>
+          <div style="font-size:13px; color:#3730A3; line-height:1.65;">
+            <strong>This is a demo build.</strong> Everything you see runs locally in your browser on fictional
+            sample data. There are no API credentials, no outbound requests, and no connection to any live
+            system. Buttons that would normally write to a CRM simulate their result instead.
+          </div>
+        </div>
+
+        <div style="font-size:12px; font-weight:700; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;">Who built this</div>
+        <div style="font-size:13px; color:var(--gray-600); line-height:1.7; margin-bottom:24px;">
+          I built this after spending too long manually pulling reports to work out which properties
+          in the portfolio were quietly underperforming — and then still not knowing which ones were
+          worth acting on first. The tool does both parts: it finds the problem and it sizes it in
+          pounds, so the list sorts by what is actually worth someone's time. I wrote the warehouse
+          SQL, the detection logic, the scheduled pipeline, the CRM integration and this interface.
+          <div style="margin-top:10px; font-weight:700; color:var(--gray-900);">— Greg Hood</div>
+        </div>
+
+        <div style="font-size:12px; font-weight:700; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;">In the production build</div>
+        <div style="display:flex; flex-direction:column; gap:11px; font-size:13px; color:var(--gray-600); line-height:1.6;">
+          <div style="display:flex; gap:11px; align-items:flex-start;"><span style="color:var(--blue-500); font-weight:800; flex-shrink:0;">1</span><span>A scheduled workflow queries the <strong>data warehouse</strong> for per-property booking value, occupancy, ADR and cancellation history across a rolling 12-month window.</span></div>
+          <div style="display:flex; gap:11px; align-items:flex-start;"><span style="color:var(--blue-500); font-weight:800; flex-shrink:0;">2</span><span><strong>Pricing and market benchmarks</strong> are layered on to establish what each property <em>should</em> be earning versus comparable local listings.</span></div>
+          <div style="display:flex; gap:11px; align-items:flex-start;"><span style="color:var(--blue-500); font-weight:800; flex-shrink:0;">3</span><span>A detection pass flags each property against six signals and sizes the <strong>recoverable revenue</strong> behind every flag.</span></div>
+          <div style="display:flex; gap:11px; align-items:flex-start;"><span style="color:var(--blue-500); font-weight:800; flex-shrink:0;">4</span><span>Flagged properties are matched to their <strong>account manager and host record in the CRM</strong>, so a task or host email can be raised in one click.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Data Integrations</div>
+      <div class="settings-section-sub">The sources the production build reads from — shown here for illustration only</div>
+      <div class="api-grid">
+        <div class="api-card">
+          <span class="api-dot mock"></span>
+          <div class="api-name">Data Warehouse</div>
+          <div class="api-role">Booking value, occupancy, ADR and cancellation history</div>
+          <div class="api-status mock">Demo Data</div>
+          <button class="api-btn" onclick="toast('Demo build — integrations are illustrative only',false)">About</button>
+        </div>
+        <div class="api-card">
+          <span class="api-dot mock"></span>
+          <div class="api-name">Wheelhouse</div>
+          <div class="api-role">Pricing intelligence — recommended rates & demand signals</div>
+          <div class="api-status mock">Demo Data</div>
+          <button class="api-btn" onclick="toast('Demo build — integrations are illustrative only',false)">About</button>
+        </div>
+        <div class="api-card">
+          <span class="api-dot mock"></span>
+          <div class="api-name">KeyData</div>
+          <div class="api-role">Market benchmarking — local occupancy, RevPAR, competitors</div>
+          <div class="api-status mock">Demo Data</div>
+          <button class="api-btn" onclick="toast('Demo build — integrations are illustrative only',false)">About</button>
+        </div>
+        <div class="api-card">
+          <span class="api-dot mock"></span>
+          <div class="api-name">HubSpot</div>
+          <div class="api-role">CRM & workflow — experts, owners, task assignment</div>
+          <div class="api-status mock">Demo Data</div>
+          <button class="api-btn" onclick="toast('Demo build — integrations are illustrative only',false)">About</button>
+        </div>
+        <div class="api-card">
+          <span class="api-dot mock"></span>
+          <div class="api-name">Slack</div>
+          <div class="api-role">Team notifications — alert experts to new opportunities</div>
+          <div class="api-status mock">Demo Data</div>
+          <button class="api-btn" onclick="toast('Demo build — integrations are illustrative only',false)">About</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Analysis Schedule</div>
+      <div class="settings-section-sub">Configure how often the revenue detector runs across your portfolio</div>
+      <div style="background:white; border:1px solid var(--gray-200); border-radius:14px; padding:24px; display:flex; align-items:center; justify-content:space-between; gap:32px;">
+        <div>
+          <div style="font-size:14px; font-weight:600; color:var(--gray-900); margin-bottom:4px;">Run frequency</div>
+          <div style="font-size:13px; color:var(--gray-500);">How often to scan your portfolio for new opportunities</div>
+        </div>
+        <div class="schedule-opts">
+          <button class="sched-btn" onclick="setSched(this)">Daily</button>
+          <button class="sched-btn active" onclick="setSched(this)">Weekly</button>
+          <button class="sched-btn" onclick="setSched(this)">Monthly</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Notifications</div>
+      <div class="settings-section-sub">Control how and when insights are surfaced to your team</div>
+      <div class="settings-grid">
+        <div class="settings-row">
+          <div class="settings-row-left"><h4>Email weekly report to team</h4><p>Send a summary every Monday morning</p></div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-left"><h4>Slack alerts for high priority</h4><p>Notify experts immediately for 🔴 issues</p></div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-left"><h4>Auto-create HubSpot tasks</h4><p>Automatically assign tasks when issues are found</p></div>
+          <div class="toggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-left"><h4>Host insight emails</h4><p>Email property owners when opportunities are found</p></div>
+          <div class="toggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ════════ TOAST ════════ -->
+<div class="toast" id="toast">
+  <span id="toast-icon">✅</span>
+  <span id="toast-msg">Done</span>
+</div>
+
+<!-- ════════ EMAIL MODAL ════════ -->
+<div class="overlay" id="email-overlay" onclick="if(event.target===this)closeEmailModal()">
+  <div class="email-modal">
+    <h3 id="email-modal-title">Email Draft</h3>
+    <p class="email-modal-sub" id="email-modal-sub"></p>
+    <div class="email-field">
+      <label>To</label>
+      <input type="text" id="email-to" placeholder="Host email address (paste if not auto-filled)">
+    </div>
+    <div class="email-field">
+      <label>Subject</label>
+      <input type="text" id="email-subject">
+    </div>
+    <div class="email-field">
+      <label>Body</label>
+      <textarea id="email-body"></textarea>
+    </div>
+    <div class="email-modal-btns">
+      <button class="btn btn-primary" onclick="copyEmail()">📋 Copy Email Body</button>
+      <button class="btn btn-primary" id="btn-copy-followup" onclick="copyAndFollowup()" style="background:var(--green-600); border-color:var(--green-600);">✅ Copy &amp; Create Follow-up Task</button>
+      <button class="btn" onclick="closeEmailModal()" style="background:var(--gray-100); color:var(--gray-600); margin-left:auto;">Close</button>
+    </div>
+    <div class="email-modal-feedback" id="email-modal-feedback"></div>
+  </div>
+</div>
+
+<!-- ════════ ANALYSIS OVERLAY ════════ -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeAnalysis()">
+  <div class="modal">
+    <div class="spinner" id="modal-spinner"></div>
+    <div class="modal-title" id="modal-title">Running Analysis…</div>
+    <p class="modal-sub" id="modal-sub">Scanning your portfolio for revenue opportunities</p>
+    <div class="step-list">
+      <div class="step-row"><div class="step-ic pending" id="s1">1</div><span>Querying booking data (12 months)</span></div>
+      <div class="step-row"><div class="step-ic pending" id="s2">2</div><span>Aggregating 12-month booking history</span></div>
+      <div class="step-row"><div class="step-ic pending" id="s3">3</div><span>Fetching paginated results from Lambda</span></div>
+      <div class="step-row"><div class="step-ic pending" id="s4">4</div><span>Aggregating property-level metrics</span></div>
+      <div class="step-row"><div class="step-ic pending" id="s5">5</div><span>Generating opportunity scores &amp; actions</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  DEMO BUILD — SELF-CONTAINED
+//  This build runs entirely in the browser on fictional sample
+//  data. All network calls, webhook config and CRM write-backs
+//  have been removed. In the production build these are served
+//  by an N8N workflow that reads performance data from the
+//  warehouse, pricing signals from Wheelhouse, market
+//  benchmarks from KeyData, and property/expert/host records
+//  from HubSpot.
+// ══════════════════════════════════════════════════════════
+//  LIVE DATA CONFIG
+//  Paste your N8N webhook URL in Settings to switch from
+//  mock → live data. The webhook calls:
+//    Looker   → occupancy, annualTbv, adr, tbvTrend
+//    Wheelhouse → marketAdr, recommendedPrice
+//    KeyData  → marketOccupancy, revpar
+//    HubSpot  → expert, ownerId, hubspot_id
+// ══════════════════════════════════════════════════════════
+const CONFIG = {
+  // Demo build: no outbound calls, no stored URLs, no credentials.
+  webhookUrl:   '',
+  hsWebhookUrl: '',
+  demoMode:     true,
+  get liveMode() { return false; }
+};
+
+// ── Mock data (used when webhookUrl is not set) ──
+const DATA = [
+  { id:'55412', nest_id:'55412', host:'Margaret Ellis', host_email:'m.ellis@example.com', name:'Peak District Farmhouse',      location:'Bakewell, Derbyshire',          expert:'Alex Hunter',   priority:'high',
+    issues:['cancellation'],
+    m:{ occupancy:48, marketOccupancy:65, adr:142, marketAdr:155, annualTbv:18400, tbvTrend:-8,
+        availGaps:0, listingScore:72,
+        cancellationRate:34, cancelledTbv:3200, grossCancelledTbv:8900, resoldRate:64,
+        cancelledNights:62, recoveredNights:40, cancelledBookings:7,
+        realisedTbv:18400, totalTbv:27300, months:12 },
+    opp:{ value:1600, desc:'34% cancellation rate — £3,200 unrecovered TBV (64% of nights resold)', action:'Review host cancellation history, guest experience, and booking policies' },
+    sources:['Demo']
+  },
+  { id:'78923', nest_id:'78923', host:'Tom Bradshaw', host_email:'t.bradshaw@example.com', name:'Lake District Cabin',         location:'Grasmere, Lake District',       expert:'Alex Hunter',   priority:'high',
+    issues:['occupancy','pricing'],
+    m:{ occupancy:29,  marketOccupancy:71, adr:95,  marketAdr:142, annualTbv:10150,  tbvTrend:-15, availGaps:12, listingScore:74 },
+    opp:{ value:6500, desc:'Low occupancy + priced 33% below market comparable listings', action:'Priority pricing & marketing review' },
+    sources:['Demo','Wheelhouse','KeyData'],
+    history:{
+      since:'Apr 2024', months:12,
+      data:[
+        {m:'Apr',occ:26,adr:89, tbv:695}, {m:'May',occ:30,adr:92, tbv:858},
+        {m:'Jun',occ:33,adr:93, tbv:920}, {m:'Jul',occ:42,adr:97, tbv:1538},
+        {m:'Aug',occ:46,adr:99, tbv:1722},{m:'Sep',occ:31,adr:91, tbv:843},
+        {m:'Oct',occ:22,adr:88, tbv:582}, {m:'Nov',occ:17,adr:84, tbv:431},
+        {m:'Dec',occ:24,adr:91, tbv:672}, {m:'Jan',occ:14,adr:81, tbv:342},
+        {m:'Feb',occ:17,adr:83, tbv:422}, {m:'Mar',occ:29,adr:89, tbv:778}
+      ],
+      yoy:{tbv:-15, occ:-8, adr:-6}
+    }
+  },
+  { id:'11208600', nest_id:'11208600', host:'Charlotte Vane', host_email:'c.vane@example.com', name:'Cotswolds Manor House',        location:'Chipping Campden, Cotswolds',   expert:'Priya Raman',  priority:'high',
+    issues:['pricing'],
+    // Sample pricing signal: avg realised rate below market recommendation,
+    // with a high share of nights sitting at the host's floor price.
+    m:{ occupancy:71,  marketOccupancy:69, adr:59, marketAdr:70, annualTbv:99600,  tbvTrend:3,   availGaps:0,  listingScore:91 },
+    opp:{ value:2800, desc:'Avg rate £59/night vs Wheelhouse market rec £70 — 15% below. 27% of nights at £45 minimum.', action:'Pricing review — submit Wheelhouse recommendation to host' },
+    sources:['Wheelhouse'],
+    history:{
+      since:'Apr 2024', months:12,
+      data:[
+        {m:'Apr',occ:67,adr:371,tbv:7480},{m:'May',occ:71,adr:377,tbv:8200},
+        {m:'Jun',occ:74,adr:380,tbv:8460},{m:'Jul',occ:81,adr:387,tbv:11930},
+        {m:'Aug',occ:84,adr:389,tbv:12380},{m:'Sep',occ:75,adr:378,tbv:8510},
+        {m:'Oct',occ:70,adr:372,tbv:7810},{m:'Nov',occ:57,adr:365,tbv:6230},
+        {m:'Dec',occ:71,adr:397,tbv:8470},{m:'Jan',occ:54,adr:362,tbv:5860},
+        {m:'Feb',occ:59,adr:365,tbv:6420},{m:'Mar',occ:70,adr:373,tbv:7850}
+      ],
+      yoy:{tbv:3, occ:2, adr:1}
+    }
+  },
+  { id:'91205', nest_id:'91205', host:'Ewan Fraser', host_email:'e.fraser@example.com', name:'Loch Lomond Retreat',          location:'Loch Lomond, Scotland',         expert:'Daniel Okafor', priority:'high',
+    issues:['occupancy','declining'],
+    m:{ occupancy:34,  marketOccupancy:67, adr:185, marketAdr:192, annualTbv:22900,  tbvTrend:-18, availGaps:8,  listingScore:68 },
+    opp:{ value:5800, desc:'Occupancy 33 pts below market, TBV declining −18% YoY', action:'Full performance review + marketing boost' },
+    sources:['Demo','KeyData','Wheelhouse'],
+    history:{
+      since:'Apr 2024', months:12,
+      data:[
+        {m:'Apr',occ:30,adr:181,tbv:1628},{m:'May',occ:34,adr:183,tbv:1873},
+        {m:'Jun',occ:38,adr:185,tbv:2109},{m:'Jul',occ:46,adr:189,tbv:2690},
+        {m:'Aug',occ:50,adr:191,tbv:2975},{m:'Sep',occ:36,adr:183,tbv:1977},
+        {m:'Oct',occ:26,adr:178,tbv:1397},{m:'Nov',occ:19,adr:175,tbv:999},
+        {m:'Dec',occ:30,adr:192,tbv:1785},{m:'Jan',occ:16,adr:171,tbv:847},
+        {m:'Feb',occ:18,adr:173,tbv:934}, {m:'Mar',occ:34,adr:180,tbv:1854}
+      ],
+      yoy:{tbv:-18, occ:-15, adr:-5}
+    }
+  },
+  { id:'82734', nest_id:'82734', host:'Nia Trevelyan', host_email:'n.trevelyan@example.com', name:'Harbour View Cottage',         location:'St Ives, Cornwall',             expert:'Daniel Okafor', priority:'medium',
+    issues:['pricing'],
+    m:{ occupancy:58,  marketOccupancy:72, adr:142, marketAdr:168, annualTbv:30100,  tbvTrend:-8,  availGaps:0,  listingScore:88 },
+    opp:{ value:3200, desc:'Priced 18% below comparable listings in St Ives', action:'Pricing review suggested' },
+    sources:['Demo','Wheelhouse'],
+    history:{
+      since:'Apr 2024', months:12,
+      data:[
+        {m:'Apr',occ:55,adr:138,tbv:2283},{m:'May',occ:60,adr:140,tbv:2604},
+        {m:'Jun',occ:64,adr:142,tbv:2731},{m:'Jul',occ:76,adr:148,tbv:4262},
+        {m:'Aug',occ:82,adr:150,tbv:4650},{m:'Sep',occ:66,adr:141,tbv:2797},
+        {m:'Oct',occ:55,adr:137,tbv:2268},{m:'Nov',occ:40,adr:131,tbv:1572},
+        {m:'Dec',occ:54,adr:148,tbv:2399},{m:'Jan',occ:35,adr:127,tbv:1341},
+        {m:'Feb',occ:41,adr:130,tbv:1690},{m:'Mar',occ:58,adr:138,tbv:2404}
+      ],
+      yoy:{tbv:-8, occ:-5, adr:-12}
+    }
+  },
+  { id:'44521', nest_id:'44521', host:'Peter Hollis', host_email:'p.hollis@example.com', name:'Norfolk Broads Boathouse',     location:'Norfolk Broads, Norfolk',       expert:'Alex Hunter',   priority:'medium',
+    issues:['declining'],
+    m:{ occupancy:48,  marketOccupancy:61, adr:168, marketAdr:195, annualTbv:29400,  tbvTrend:-23, availGaps:4,  listingScore:76 },
+    opp:{ value:4400, desc:'TBV declining −23% YoY — significant performance drop requires investigation', action:'Full performance + listing audit' },
+    sources:['Demo','KeyData'],
+    history:{
+      since:'Apr 2024', months:12,
+      data:[
+        {m:'Apr',occ:44,adr:162,tbv:2138},{m:'May',occ:50,adr:166,tbv:2573},
+        {m:'Jun',occ:54,adr:168,tbv:2722},{m:'Jul',occ:64,adr:172,tbv:4218},
+        {m:'Aug',occ:68,adr:174,tbv:4481},{m:'Sep',occ:55,adr:166,tbv:2739},
+        {m:'Oct',occ:44,adr:161,tbv:2124},{m:'Nov',occ:32,adr:156,tbv:1498},
+        {m:'Dec',occ:43,adr:170,tbv:2199},{m:'Jan',occ:28,adr:154,tbv:1300},
+        {m:'Feb',occ:32,adr:156,tbv:1490},{m:'Mar',occ:46,adr:162,tbv:2238}
+      ],
+      yoy:{tbv:-23, occ:-12, adr:-14}
+    }
+  },
+  { id:'67891', nest_id:'67891', host:'Rachel Nkemdi', host_email:'r.nkemdi@example.com', name:'Bakewell Stone Barn',          location:'Bakewell, Peak District',       expert:'Priya Raman',  priority:'medium',
+    issues:['calendar','occupancy'],
+    m:{ occupancy:61,  marketOccupancy:74, adr:220, marketAdr:225, annualTbv:49100,  tbvTrend:-4,  availGaps:45, listingScore:82 },
+    opp:{ value:2100, desc:'45 days blocked in peak season unnecessarily reducing potential bookings', action:'Calendar availability review' },
+    sources:['Demo'],
+    history:{
+      since:'Aug 2024', months:8,
+      data:[
+        {m:'Aug',occ:70,adr:217,tbv:4833},{m:'Sep',occ:65,adr:214,tbv:4173},
+        {m:'Oct',occ:62,adr:212,tbv:3964},{m:'Nov',occ:50,adr:207,tbv:3105},
+        {m:'Dec',occ:58,adr:224,tbv:3912},{m:'Jan',occ:44,adr:204,tbv:2737},
+        {m:'Feb',occ:48,adr:207,tbv:2981},{m:'Mar',occ:61,adr:212,tbv:3893}
+      ],
+      yoy:null
+    }
+  },
+  { id:'19847', nest_id:'19847', host:'Sam Whitcombe', host_email:'s.whitcombe@example.com', name:'Brighton Beachfront Studio',   location:'Brighton, East Sussex',         expert:'Daniel Okafor', priority:'low',
+    issues:['occupancy','calendar'],
+    m:{ occupancy:52,  marketOccupancy:65, adr:125, marketAdr:130, annualTbv:23800,  tbvTrend:1,   availGaps:18, listingScore:79 },
+    opp:{ value:2400, desc:'Off-peak availability gaps and occupancy 13 pts below market', action:'Promotional pricing for off-peak periods' },
+    sources:['Demo','Wheelhouse'],
+    history:{
+      since:'Oct 2024', months:6,
+      data:[
+        {m:'Oct',occ:55,adr:122,tbv:2028},{m:'Nov',occ:42,adr:117,tbv:1475},
+        {m:'Dec',occ:58,adr:129,tbv:2392},{m:'Jan',occ:36,adr:114,tbv:1265},
+        {m:'Feb',occ:44,adr:117,tbv:1638},{m:'Mar',occ:52,adr:121,tbv:1899}
+      ],
+      yoy:null
+    }
+  },
+  { id:'33847', nest_id:'33847', host:'Fiona Kerr', host_email:'f.kerr@example.com', name:'Edinburgh City Apartment',     location:'Old Town, Edinburgh',           expert:'Alex Hunter',   priority:'low',
+    issues:['content'],
+    m:{ occupancy:44,  marketOccupancy:78, adr:98,  marketAdr:145, annualTbv:15700,  tbvTrend:-5,  availGaps:0,  listingScore:42 },
+    opp:{ value:1800, desc:'Listing score only 42% — missing photos, description and amenities', action:'Content improvement required' },
+    sources:['Demo'],
+    history:{
+      since:'Jan 2025', months:3,
+      data:[
+        {m:'Jan',occ:38,adr:93, tbv:1413},
+        {m:'Feb',occ:42,adr:95, tbv:1596},
+        {m:'Mar',occ:44,adr:95, tbv:1673}
+      ],
+      yoy:null
+    }
+  }
+];
+
+const ISSUE_CFG = {
+  pricing:      { label:'Below Market Price',    icon:'💰' },
+  occupancy:    { label:'Low Occupancy',         icon:'📉' },
+  calendar:     { label:'Availability Gap',      icon:'📅' },
+  content:      { label:'Incomplete Listing',    icon:'📝' },
+  declining:    { label:'Declining Performance', icon:'⚠️' },
+  cancellation: { label:'High Cancellation Rate',icon:'🚫' }
+};
+
+// ── State ──
+let filter='all', search='', sort='opportunity', expert='all';
+let currentView = 'detector';
+let listPage = 0;
+const PAGE_SIZE = 25;
+
+// ── View switching ──
+const VIEW_META = {
+  dashboard:  { title:'Dashboard',                      subtitle:'Your portfolio revenue snapshot' },
+  detector:   { title:'Revenue Opportunity Detector',   subtitle:'Automatically identify underperforming properties and surface high-value revenue actions' },
+  properties: { title:'Properties',                     subtitle:'Full portfolio view with performance metrics' },
+  reports:    { title:'Reports',                        subtitle:'Weekly revenue analysis and opportunity summaries' },
+  settings:   { title:'Settings',                       subtitle:'Configure data integrations, schedule and notifications' }
+};
+
+function showView(name) {
+  currentView = name;
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.querySelector(`[data-view="${name}"]`).classList.add('active');
+  document.getElementById('page-title').textContent = VIEW_META[name].title;
+  document.getElementById('page-subtitle').textContent = VIEW_META[name].subtitle;
+  document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+  document.getElementById(`view-${name}`).classList.remove('hidden');
+  const kpi = document.getElementById('kpi-bar');
+  kpi.classList.toggle('hidden', name === 'settings');
+  const badge = document.getElementById('last-run-badge');
+  const nextLine = document.getElementById('next-run-line');
+  badge.style.display = name === 'settings' ? 'none' : '';
+  nextLine.style.display = name === 'settings' ? 'none' : '';
+  if (name === 'properties') renderTable();
+  window.scrollTo(0,0);
+}
+
+// ── Detector filter/sort ──
+function filtered() {
+  return DATA
+    .filter(p => {
+      if (filter !== 'all' && !p.issues.includes(filter)) return false;
+      if (search && !p.name.toLowerCase().includes(search.toLowerCase()) && !p.id.includes(search)) return false;
+      if (expert !== 'all' && p.expert !== expert) return false;
+      return true;
+    })
+    .sort((a,b) => {
+      if (sort === 'opportunity') return b.opp.value - a.opp.value;
+      if (sort === 'priority')    return ['high','medium','low'].indexOf(a.priority) - ['high','medium','low'].indexOf(b.priority);
+      if (sort === 'occupancy')   return a.m.occupancy - b.m.occupancy;
+      return a.id.localeCompare(b.id);
+    });
+}
+
+function renderList() {
+  const list = document.getElementById('prop-list');
+  const props = filtered();
+  if (!props.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">No properties match your filters</div><p class="empty-sub">Try adjusting the issue type, expert, or search term</p></div>`;
+    return;
+  }
+  const showing = Math.min((listPage + 1) * PAGE_SIZE, props.length);
+  const hasMore = showing < props.length;
+  const loadMoreBtn = hasMore
+    ? `<div style="text-align:center;padding:28px 0 8px;">
+        <button onclick="loadMore()" class="btn" style="background:white;border:1px solid var(--gray-300);color:var(--gray-700);padding:10px 28px;font-size:14px;">
+          Load more — ${props.length - showing} remaining
+        </button>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:8px;">Showing ${showing} of ${props.length}</div>
+      </div>`
+    : (props.length > PAGE_SIZE ? `<div style="text-align:center;padding:16px 0;font-size:12px;color:var(--gray-400);">All ${props.length} properties shown</div>` : '');
+  list.innerHTML = props.slice(0, showing).map(card).join('') + loadMoreBtn;
+}
+
+function loadMore() {
+  listPage++;
+  renderList();
+  // Don't scroll, just expand the list
+}
+
+function histPanel(p) {
+  const h = p.history;
+  const isNew = h.months < 12;
+  const periodLabel = isNew
+    ? `Listed since ${h.since} · ${h.months} month${h.months>1?'s':''}`
+    : `Last 12 months · since ${h.since}`;
+  const badgeCls = isNew ? 'new-listing' : '';
+
+  // YoY stats block
+  let statsHtml;
+  if (h.tbvOnly) {
+    const tot_tbv = h.data.reduce((s,d)=>s+d.tbv,0);
+    const yoy = h.yoy?.tbv ?? 0;
+    const yCls = yoy > 0 ? 'up' : yoy < 0 ? 'down' : 'flat';
+    const ySym = yoy > 0 ? '▲' : yoy < 0 ? '▼' : '–';
+    statsHtml = `
+      <div class="hist-stats">
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--gray-700)">£${tot_tbv.toLocaleString()}</div><div class="hist-stat-lbl">TBV — last 12 months</div></div>
+        <div class="hist-stat"><div class="hist-stat-val ${yCls}">${ySym} ${Math.abs(yoy)}%</div><div class="hist-stat-lbl">YoY change</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--gray-400);font-size:11px;">Occ &amp; ADR</div><div class="hist-stat-lbl">Connect Looker for full history</div></div>
+      </div>`;
+  } else if (h.yoy) {
+    const fmt = (v, unit='%') => {
+      const cls = v > 0 ? 'up' : v < 0 ? 'down' : 'flat';
+      const sym = v > 0 ? '▲' : v < 0 ? '▼' : '–';
+      return `<div class="hist-stat">
+        <div class="hist-stat-val ${cls}">${sym} ${Math.abs(v)}${unit}</div>
+        <div class="hist-stat-lbl">YoY change</div>
+      </div>`;
+    };
+    statsHtml = `
+      <div class="hist-stats">
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--gray-700)">TBV</div><div class="hist-stat-lbl">Total Booking Value</div></div>
+        ${fmt(h.yoy.tbv)}
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--gray-700)">Occupancy</div><div class="hist-stat-lbl">Avg Occupancy Rate</div></div>
+        ${fmt(h.yoy.occ)}
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--gray-700)">ADR</div><div class="hist-stat-lbl">Avg Nightly Rate</div></div>
+        ${fmt(h.yoy.adr)}
+      </div>`;
+  } else {
+    const avg_occ = Math.round(h.data.reduce((s,d)=>s+d.occ,0)/h.data.length);
+    const avg_adr = Math.round(h.data.reduce((s,d)=>s+d.adr,0)/h.data.length);
+    const tot_tbv = h.data.reduce((s,d)=>s+d.tbv,0);
+    statsHtml = `
+      <div class="hist-stats">
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--gray-700)">£${tot_tbv.toLocaleString()}</div><div class="hist-stat-lbl">TBV since listing</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--gray-700)">${avg_occ}%</div><div class="hist-stat-lbl">Avg occupancy</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" style="color:var(--gray-700)">£${avg_adr}</div><div class="hist-stat-lbl">Avg nightly rate</div></div>
+        <div class="hist-no-yoy">YoY comparison available after 12 months on platform</div>
+      </div>`;
+  }
+
+  const monthLabels = h.data.map(d=>`<span>${d.m}</span>`).join('');
+  const initTab   = h.tbvOnly ? 'tbv' : 'occ';
+  const initColor = h.tbvOnly ? '#7C3AED' : '#4368E7';
+  const initChart = sparklineSVG(h.data, initTab, initColor);
+
+  return `<div id="hist-${p.id}" class="history-panel hidden">
+    <div class="hist-header">
+      <div class="hist-tabs">
+        ${h.tbvOnly ? '' : `<button class="htab active" onclick="setHistTab('${p.id}','occ',this)">Occupancy %</button>`}
+        ${h.tbvOnly ? '' : `<button class="htab" onclick="setHistTab('${p.id}','adr',this)">Nightly Rate</button>`}
+        <button class="htab${h.tbvOnly ? ' active' : ''}" onclick="setHistTab('${p.id}','tbv',this)">Monthly TBV</button>
+      </div>
+      <span class="hist-period-badge ${badgeCls}">📅 ${periodLabel}</span>
+    </div>
+    <div class="hist-chart-wrap">
+      <div id="hist-chart-${p.id}" class="hist-chart">${initChart}</div>
+    </div>
+    <div class="hist-month-labels">${monthLabels}</div>
+    ${statsHtml}
+  </div>`;
+}
+
+function card(p) {
+  const ini = (p.expert || 'UK').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase() || 'UK';
+  const hasWH     = (p.m.wheelhouseBase || 0) > 0;
+  const hasMktAdr = p.m.marketAdr > 0;
+
+  // Performance tier — drives which WH rate to suggest
+  const occRatio        = (p.m.marketOccupancy || 0) > 0 ? p.m.occupancy / p.m.marketOccupancy : 1;
+  const isHighPerforming  = occRatio >= 0.95 && (p.m.tbvTrend || 0) >= 0;
+  const isUnderperforming = occRatio < 0.8  || (p.m.tbvTrend || 0) < -10;
+
+  // ADR comparison — always vs WH recommended (falls back to portfolio median)
+  const compAdr   = hasWH ? p.m.wheelhouseBase : (hasMktAdr ? p.m.marketAdr : 0);
+  const compLabel = hasWH ? 'WH base' : 'portfolio median';
+  const adrDiff   = compAdr > 0 ? Math.round(Math.abs(p.m.adr - compAdr) / compAdr * 100) : 0;
+  const adrDir    = p.m.adr < compAdr ? 'neg' : 'pos';
+
+  // Pricing suggestion chip
+  const whSuggestVal   = hasWH && isHighPerforming  ? (p.m.wheelhouseAggressive   || 0)
+                       : hasWH && isUnderperforming ? (p.m.wheelhouseConservative  || 0) : 0;
+  const whSuggestLabel = isHighPerforming ? 'aggressive' : 'conservative';
+  const whSuggestColor = isHighPerforming ? '#16A34A' : '#D97706';
+  const whSuggestArrow = isHighPerforming ? '↑' : '↓';
+
+  // Min price flags
+  const hostMin   = p.m.hostSetMin || 0;
+  const whFloor   = p.m.wheelhouseConservative || 0;
+  const minTooLow = hasWH && hostMin > 0 && whFloor > 0 && hostMin < whFloor;
+  const trendCls = p.m.tbvTrend >= 0 ? 'pos' : 'neg';
+  const trendStr = p.m.tbvTrend >= 0 ? `+${p.m.tbvTrend}%` : `${p.m.tbvTrend}%`;
+  const occColor  = p.m.occupancy > 0
+    ? (p.m.occupancy >= (p.m.marketOccupancy||70) ? '#22C55E' : p.m.occupancy >= (p.m.marketOccupancy||70)*0.8 ? '#D97706' : '#EF4444')
+    : 'var(--gray-400)';
+  const listColor = p.m.listingScore >= 80 ? '#16A34A' : p.m.listingScore >= 60 ? '#D97706' : '#EF4444';
+  const gapColor  = p.m.availGaps > 10 ? '#EF4444' : p.m.availGaps > 0 ? '#D97706' : '#16A34A';
+  const issueTags = p.issues.map(i=>`<span class="itag ${i}">${(ISSUE_CFG[i]||{icon:'•',label:i}).icon} ${(ISSUE_CFG[i]||{icon:'•',label:i}).label}</span>`).join('');
+  const mockChip  = `<span class="src-chip mock">Sample</span>`;
+  const srcChips  = p.sources.map(s=>`<span class="src-chip ${s.toLowerCase()}">${s}</span>`).join('') + mockChip;
+
+  // ── Metrics middle section — contextual based on available data ──
+  const isCancellation    = p.issues.includes('cancellation');
+  const cancRate          = p.m.cancellationRate  ?? 0;
+  const cancelledTbv      = p.m.cancelledTbv      ?? 0;  // net (unrecovered)
+  const grossCancelledTbv = p.m.grossCancelledTbv ?? cancelledTbv;
+  const resoldRate        = p.m.resoldRate        ?? 0;  // % of nights resold
+  const realisedTbv       = p.m.realisedTbv       ?? 0;
+  const totalTbv          = p.m.totalTbv          ?? 0;
+
+  const topMetric1 = isCancellation
+    ? `<div class="met">
+        <div class="met-lbl">Realised TBV <span style="font-weight:500;color:var(--gray-400)">(annual)</span></div>
+        <div class="met-val" style="color:#16A34A">£${realisedTbv.toLocaleString()}</div>
+        <div class="met-sub">of £${totalTbv.toLocaleString()} total booked</div>
+      </div>`
+    : `<div class="met">
+        <div class="met-lbl">Occupancy</div>
+        <div class="met-val" style="color:${occColor}">${p.m.occupancy > 0 ? p.m.occupancy+'%' : '—'}</div>
+        ${p.m.occupancy > 0 && p.m.marketOccupancy > 0
+          ? `<div class="occ-bar"><div class="occ-fill" style="width:${p.m.occupancy}%;background:${occColor};"></div><div class="occ-marker" style="left:${p.m.marketOccupancy}%;"></div></div>
+             <div class="occ-labels"><span style="color:${occColor};font-size:10px;font-weight:700;">${p.m.occupancy}% yours</span><span style="color:#4368E7;font-size:10px;font-weight:700;">${p.m.marketOccupancy}% mkt</span></div>`
+          : `<div class="met-sub" style="margin-top:8px;">Market comparison pending</div>`}
+      </div>`;
+
+  const row2 = isCancellation
+    ? `<div class="metrics-row2" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="met-sm">
+          <div class="met-sm-lbl">Cancellation Rate</div>
+          <div class="met-sm-val" style="color:#BE123C">${cancRate}%</div>
+        </div>
+        <div class="met-sm">
+          <div class="met-sm-lbl">Unrecovered TBV</div>
+          <div class="met-sm-val" style="color:#BE123C">£${cancelledTbv.toLocaleString()}</div>
+          ${grossCancelledTbv > cancelledTbv ? `<div style="font-size:10px;color:var(--gray-400);margin-top:2px;">of £${grossCancelledTbv.toLocaleString()} gross</div>` : ''}
+        </div>
+        <div class="met-sm">
+          <div class="met-sm-lbl">Nights Resold</div>
+          <div class="met-sm-val" style="color:${resoldRate >= 50 ? '#16A34A' : resoldRate >= 25 ? '#D97706' : '#BE123C'}">${resoldRate}%</div>
+          <div style="font-size:10px;color:var(--gray-400);margin-top:2px;">of cancelled dates</div>
+        </div>
+      </div>`
+    : `<div class="metrics-row2">
+        <div class="met-sm"><div class="met-sm-lbl">Availability Gaps</div><div class="met-sm-val" style="color:${gapColor}">${p.m.availGaps} days blocked</div></div>
+        <div class="met-sm"><div class="met-sm-lbl">Listing Score</div><div class="met-sm-val" style="color:${listColor}">${p.m.listingScore}%</div><div class="score-bar"><div class="score-fill" style="width:${p.m.listingScore}%;background:${listColor};"></div></div></div>
+      </div>`;
+
+  const histBtn = p.history
+    ? `<button id="histbtn-${p.id}" class="abtn ghost hist-toggle-btn" onclick="toggleHistory('${p.id}')">📈 Performance History</button>`
+    : '';
+  const expertEscaped = (p.expert || '').replace(/'/g, "\\'");
+
+  return `<div class="prop-card ${p.priority}">
+    <div class="prop-body">
+      <div class="prop-meta">
+        <div class="prop-id-row"><span class="prop-id">#${p.id}</span><span class="pri-badge ${p.priority}">${p.priority==='high'?'🔴':p.priority==='medium'?'🟡':'🟢'} ${p.priority}</span></div>
+        <div class="prop-name">${p.name}</div>
+        <div class="prop-loc"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>${p.location || '—'}</div>
+        <div class="issue-tags">${issueTags}</div>
+        <div class="expert-row"><div class="expert-av">${ini}</div><div class="expert-lbl">Expert: <strong>${p.expert || 'Unassigned'}</strong>${p.host ? ` · Host: <strong>${p.host}</strong>` : ''}</div></div>
+      </div>
+      <div>
+        <div class="metrics-grid">
+          ${topMetric1}
+          <div class="met">
+            <div class="met-lbl">Avg Nightly Rate</div>
+            <div class="met-val">${p.m.adr > 0 ? '£'+p.m.adr : '—'}</div>
+            <div class="met-sub">${compAdr > 0 ? `vs £${compAdr} ${compLabel}&nbsp;<span class="${adrDir}">(${adrDir==='neg'?'−':'+'}${adrDiff}%)</span>` : `<span style="color:var(--gray-400)">Wheelhouse: pending</span>`}</div>
+            ${hasWH && whSuggestVal > 0 ? `<div style="margin-top:3px;font-size:10px;font-weight:600;color:${whSuggestColor};">${whSuggestArrow} Consider ${whSuggestLabel}: £${whSuggestVal}</div>` : ''}
+            ${hasWH && hostMin > 0 ? `<div style="margin-top:4px;font-size:10px;color:var(--gray-500);">Min set: £${hostMin}${minTooLow ? `&nbsp;<span style="color:#EF4444;font-weight:600;">⚠ below WH floor £${whFloor}</span>` : `&nbsp;/ WH floor £${whFloor}`}</div>` : ''}
+          </div>
+          <div class="met">
+            <div class="met-lbl">Annual TBV</div>
+            <div class="met-val">£${(p.m.annualTbv/1000).toFixed(0)}k</div>
+            <div class="met-sub">${p.m.tbvTrend !== 0 ? `YoY:&nbsp;<span class="${trendCls}">${trendStr}</span>` : 'Trend pending'}</div>
+          </div>
+        </div>
+        ${row2}
+      </div>
+      <div class="opp-panel">
+        <div class="opp-top">
+          <div class="opp-lbl">Annual Opportunity</div>
+          <div class="opp-val">+£${p.opp.value.toLocaleString()}</div>
+          <div class="opp-desc">${p.opp.desc}</div>
+          <div class="src-chips">${srcChips}</div>
+        </div>
+      </div>
+    </div>
+    <div class="prop-footer">
+      <div class="action-hint"><strong>Suggested action:</strong> ${p.opp.action}</div>
+      <div class="action-btns">
+        ${histBtn}
+        <button class="abtn ghost" onclick="notifyExpert('${p.id}','${expertEscaped}')"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>Notify Expert</button>
+        <button class="abtn ghost" onclick="emailHost('${p.id}')"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>Email Host</button>
+        <button class="abtn teal" onclick="triggerPricing('${p.id}')"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Review Pricing</button>
+        <button class="abtn blue" onclick="createTask('${p.id}','${expertEscaped}')"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>Create HubSpot Task</button>
+      </div>
+    </div>
+    ${p.history ? histPanel(p) : ''}
+  </div>`;
+}
+
+// ── History panel ──
+function sparklineSVG(data, key, color) {
+  const W = 640, H = 115, padL = 46, padR = 8, padT = 18, padB = 4;
+  const chartH = H - padT - padB;
+  const vals = data.map(d => d[key]);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 1;
+  const xs = data.map((_,i) => padL + (i / (data.length - 1)) * (W - padL - padR));
+  const ys = vals.map(v => padT + (1 - (v - min) / range) * chartH);
+  const pts = xs.map((x,i) => `${x},${ys[i]}`).join(' ');
+  const polyPts = `${xs[0]},${H} ` + pts + ` ${xs[xs.length-1]},${H}`;
+
+  // Y-axis label formatter
+  const fmt = v => key === 'tbv' ? (v >= 1000 ? `£${Math.round(v/1000)}k` : `£${Math.round(v)}`)
+                 : key === 'adr' ? `£${Math.round(v)}` : `${Math.round(v)}%`;
+
+  const midVal = (min + max) / 2;
+  const yTop = padT, yMid = padT + chartH / 2, yBot = padT + chartH;
+
+  // Value labels on each dot — alternate above/below to reduce overlap
+  const dotLabels = vals.map((v, i) => {
+    if (v === 0 && min === 0 && max === 0) return '';
+    const x = xs[i], y = ys[i];
+    const above = i % 2 === 0;
+    const labelY = above ? Math.max(y - 6, 10) : Math.min(y + 13, H - 2);
+    return `<text x="${x}" y="${labelY}" text-anchor="middle" font-size="9" font-family="-apple-system,BlinkMacSystemFont,sans-serif" fill="${color}" font-weight="700" opacity="0.9">${fmt(v)}</text>`;
+  }).join('');
+
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:105px;display:block;">
+    <defs>
+      <linearGradient id="sg-${key}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.18"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0.01"/>
+      </linearGradient>
+    </defs>
+    <line x1="${padL}" y1="${yTop}" x2="${W-padR}" y2="${yTop}" stroke="#f3f4f6" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="${padL}" y1="${yMid}" x2="${W-padR}" y2="${yMid}" stroke="#f3f4f6" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="${padL}" y1="${yBot}" x2="${W-padR}" y2="${yBot}" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="${padL-4}" y="${yTop+4}" text-anchor="end" font-size="9" font-family="-apple-system,sans-serif" fill="#9ca3af">${fmt(max)}</text>
+    <text x="${padL-4}" y="${yMid+4}" text-anchor="end" font-size="9" font-family="-apple-system,sans-serif" fill="#9ca3af">${fmt(midVal)}</text>
+    <text x="${padL-4}" y="${yBot+4}" text-anchor="end" font-size="9" font-family="-apple-system,sans-serif" fill="#9ca3af">${fmt(min)}</text>
+    <polygon points="${polyPts}" fill="url(#sg-${key})"/>
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+    ${vals.map((v,i)=>`<circle cx="${xs[i]}" cy="${ys[i]}" r="3.5" fill="${color}" stroke="white" stroke-width="1.5"/>`).join('')}
+    ${dotLabels}
+  </svg>`;
+}
+
+function toggleHistory(id) {
+  const panel = document.getElementById('hist-' + id);
+  const btn   = document.getElementById('histbtn-' + id);
+  if (!panel || !btn) return;   // property has no history series
+  const open  = panel.classList.toggle('hidden');
+  btn.textContent = open ? '📈 Performance History' : '📈 Hide History';
+  btn.classList.toggle('open', !open);
+}
+
+function setHistTab(id, key, btn) {
+  const p = DATA.find(d => d.id === id);
+  const colorMap = { occ:'#4368E7', adr:'#16A34A', tbv:'#7C3AED' };
+  document.querySelectorAll(`#hist-${id} .htab`).forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const chartEl = document.getElementById('hist-chart-' + id);
+  chartEl.innerHTML = sparklineSVG(p.history.data, key, colorMap[key]);
+}
+
+// ── Properties table ──
+function renderTable() {
+  const tbody = document.getElementById('properties-table-body');
+  tbody.innerHTML = DATA.map(p => {
+    const occColor = p.m.occupancy >= p.m.marketOccupancy ? '#22C55E' : p.m.occupancy >= p.m.marketOccupancy*0.8 ? '#D97706' : '#EF4444';
+    const adrDiff = Math.round(Math.abs(p.m.adr - p.m.marketAdr) / p.m.marketAdr * 100);
+    const adrDir  = p.m.adr < p.m.marketAdr ? '−' : '+';
+    const tags = p.issues.map(i=>`<span class="tbl-tag itag ${i}">${ISSUE_CFG[i].icon} ${ISSUE_CFG[i].label}</span>`).join('');
+    const ini = p.expert.split(' ').map(n=>n[0]).join('');
+    return `<tr>
+      <td><div class="td-name">${p.name}</div><div style="display:flex;gap:8px;align-items:center;"><span class="td-id">#${p.id}</span><span class="td-loc">${p.location}</span></div></td>
+      <td><div style="display:flex;align-items:center;gap:8px;"><div class="expert-av" style="width:24px;height:24px;font-size:9px;">${ini}</div><span style="font-size:13px;font-weight:500;">${p.expert}</span></div></td>
+      <td><div class="occ-indicator"><span style="font-size:14px;font-weight:700;color:${occColor};min-width:36px;">${p.m.occupancy}%</span><div class="occ-bar-sm"><div class="occ-fill-sm" style="width:${p.m.occupancy}%;background:${occColor};"></div></div><span style="font-size:11px;color:var(--gray-400);">${p.m.marketOccupancy}% mkt</span></div></td>
+      <td><span style="font-weight:700;">£${p.m.adr}</span> <span style="font-size:11px;color:${p.m.adr<p.m.marketAdr?'#EF4444':'#16A34A'};">(${adrDir}${adrDiff}%)</span></td>
+      <td style="font-weight:700;">£${(p.m.annualTbv/1000).toFixed(0)}k</td>
+      <td>${tags}</td>
+      <td style="font-weight:800;color:var(--green-600);">+£${p.opp.value.toLocaleString()}</td>
+      <td><button class="tbl-act" onclick="showView('detector');setTimeout(()=>{setSearch('${p.id}')},100)">View →</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Controls ──
+function setFilter(f, btn) { filter=f; listPage=0; document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active')); btn.classList.add('active'); renderList(); }
+function setSearch(v) { search=v; listPage=0; renderList(); }
+function setSort(v)   { sort=v;   listPage=0; renderList(); }
+function setExpert(v) { expert=v; listPage=0; renderList(); }
+
+function updateFilterCounts() {
+  const counts = { all: DATA.length };
+  Object.keys(ISSUE_CFG).forEach(k => {
+    counts[k] = DATA.filter(p => p.issues.includes(k)).length;
+  });
+  document.querySelectorAll('.ftab[data-filter]').forEach(tab => {
+    const f = tab.dataset.filter;
+    const el = tab.querySelector('.ftab-count');
+    if (el && counts[f] !== undefined) el.textContent = counts[f];
+  });
+}
+function setSched(btn) { document.querySelectorAll('.sched-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); toast('Schedule updated to ' + btn.textContent); }
+
+// ── Actions ──
+let toastTimer;
+function toast(msg, ok=true) {
+  const el=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  document.getElementById('toast-icon').textContent=ok?'✅':'ℹ️';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),4000);
+}
+function notifyExpert(id,exp) { toast(`Demo — a Slack alert would be sent to ${exp} for ${id}`); }
+function triggerPricing(id)    { toast(`Demo — a pricing review would be queued for ${id}`); }
+function exportReport()        { toast('Demo — a CSV/PDF report would be generated here'); }
+
+function createTask(id, exp) {
+  const p = DATA.find(x => x.id === id);
+  if (!p) return toast('Property not found');
+  // Demo build: the production version POSTs to a workflow that creates the task in HubSpot,
+  // assigned to the property's account manager with the signal detail in the task body.
+  toast(`Demo — a HubSpot task for "${p.name}" would be created and assigned to ${exp || 'the property expert'}`);
+}
+
+function emailHost(id) {
+  const p = DATA.find(x => x.id === id);
+  if (!p) return toast('Property not found');
+  openEmailModal(p);
+}
+
+// ── Email modal ──
+let _emailPropId = null;
+
+function addWorkingDays(date, days) {
+  const d = new Date(date);
+  let added = 0;
+  while (added < days) {
+    d.setDate(d.getDate() + 1);
+    const dow = d.getDay();
+    if (dow !== 0 && dow !== 6) added++;
+  }
+  return d;
+}
+
+function buildEmailDraft(p) {
+  const signal = p.issues[0];
+  const host   = p.host || 'there';
+  const expert = p.expert || 'The TravelNest Team';
+  const m      = p.m;
+  let subject = '', body = '';
+
+  if (signal === 'quiet') {
+    subject = `Your property hasn't had new bookings recently — let's review`;
+    body = `Hi ${host},\n\nI wanted to reach out as we haven't seen any new bookings for Property #${p.nest_id || p.id} recently. Last year your property generated around £${Math.round(m.annualTbv || 0).toLocaleString()}, so I'd like to review a few things together — calendar availability, listing visibility, and pricing — to help get bookings moving again.\n\nWould you be available for a quick call this week?\n\nBest,\n${expert}`;
+  } else if (signal === 'declining') {
+    const trend = Math.abs(m.tbvTrend || 0);
+    subject = `Your property's booking performance — let's catch up`;
+    body = `Hi ${host},\n\nI've been reviewing your property's performance and wanted to connect. Bookings are currently tracking around ${trend}% below this time last year, and I'd love to explore what might be driving this and identify some actions we can take together.\n\nWhether it's pricing, listing presentation, or seasonal demand, there's likely something we can do to improve things.\n\nCould we find a time to chat this week?\n\nBest,\n${expert}`;
+  } else if (signal === 'cancellation') {
+    subject = `Following up on recent cancellations at your property`;
+    body = `Hi ${host},\n\nI wanted to flag that we've seen a higher-than-usual cancellation rate at your property recently — around ${m.cancellationRate || 0}% — resulting in approximately £${Math.round(m.cancelledTbv || 0).toLocaleString()} in unrecovered revenue.\n\nI'd like to review this with you to understand what's driving it and explore what we can do to reduce cancellations and recover more bookings going forward.\n\nAre you free for a call this week?\n\nBest,\n${expert}`;
+  } else if (signal === 'underpriced') {
+    subject = `Pricing opportunity for your property`;
+    body = `Hi ${host},\n\nI've been analysing your property's pricing and believe there's a real opportunity to increase your revenue. Your current average nightly rate is around £${m.adr || 0}, compared to our portfolio average of £${m.marketAdr || 0} — suggesting your property may be underpriced relative to similar listings.\n\nI'd love to share some recommendations from our pricing tool that could help you achieve stronger returns without affecting occupancy.\n\nWould you be open to a quick conversation?\n\nBest,\n${expert}`;
+  } else if (signal === 'overpriced') {
+    subject = `Let's review your property's pricing strategy`;
+    body = `Hi ${host},\n\nI'm reaching out because I've noticed your occupancy has dropped compared to last year, which may be linked to your current pricing. At an average of £${m.adr || 0} per night, you're above our portfolio median, and it's possible this is affecting demand.\n\nI'd like to discuss some adjustments that could help improve occupancy while maintaining strong revenue overall.\n\nAre you available for a call this week?\n\nBest,\n${expert}`;
+  } else if (signal === 'pricing') {
+    subject = `Pricing opportunity for your property`;
+    body = `Hi ${host},\n\nI've been reviewing your property's pricing and think there's a genuine opportunity to increase your revenue. Your current average nightly rate is around £${m.adr || 0}, against a local market average of £${m.marketAdr || 0} for comparable listings.\n\nI'd like to walk you through what our pricing tool is recommending — the aim is stronger returns without losing occupancy.\n\nWould you be open to a quick call this week?\n\nBest,\n${expert}`;
+  } else if (signal === 'occupancy') {
+    subject = `Let's look at boosting your bookings`;
+    body = `Hi ${host},\n\nI wanted to get in touch about your property's occupancy. You're currently running at around ${m.occupancy || 0}% booked, compared with roughly ${m.marketOccupancy || 0}% for similar properties in your area.\n\nThat gap usually comes down to a mix of pricing, listing visibility and calendar availability — all things we can work on together.\n\nCould we find twenty minutes this week to go through it?\n\nBest,\n${expert}`;
+  } else if (signal === 'calendar') {
+    subject = `Some available dates we could open up`;
+    body = `Hi ${host},\n\nI've been looking at your calendar and noticed around ${m.availGaps || 0} days are currently blocked during what tends to be a strong booking period.\n\nIf any of those dates are flexible, opening them up could bring in additional bookings without any other changes. Equally, if they're blocked for a reason, no problem at all — I just wanted to check.\n\nHappy to talk it through whenever suits.\n\nBest,\n${expert}`;
+  } else if (signal === 'content') {
+    subject = `A few quick wins for your listing`;
+    body = `Hi ${host},\n\nI've been reviewing your listing and think a few straightforward improvements could make a real difference to how often it gets found and booked. At the moment it's scoring ${m.listingScore || 0}% on completeness — usually that's missing photos, a thin description, or amenities that haven't been ticked.\n\nThese are quick to fix and tend to pay back fast. I'm happy to help with the wording and suggest which photos to add.\n\nWould you like me to put together a short list?\n\nBest,\n${expert}`;
+  } else {
+    subject = `Following up on your property — let's connect`;
+    body = `Hi ${host},\n\nI wanted to reach out regarding Property #${p.nest_id || p.id}. ${p.opp.desc}\n\n${p.opp.action}\n\nWould you be available for a quick call this week?\n\nBest,\n${expert}`;
+  }
+
+  return { subject, body };
+}
+
+function openEmailModal(p) {
+  const draft = buildEmailDraft(p);
+  _emailPropId = p.id;
+  document.getElementById('email-modal-title').textContent = `Email Draft — Property #${p.nest_id || p.id}`;
+  const sub = p.name && p.name !== `Property ${p.nest_id}` ? p.name : (p.host ? `Host: ${p.host}` : '');
+  document.getElementById('email-modal-sub').textContent = sub;
+  document.getElementById('email-to').value      = p.host_email || '';
+  document.getElementById('email-subject').value = draft.subject;
+  document.getElementById('email-body').value    = draft.body;
+  const fb = document.getElementById('email-modal-feedback');
+  fb.style.display = 'none'; fb.textContent = '';
+  const btn = document.getElementById('btn-copy-followup');
+  btn.disabled  = false;
+  btn.title     = '';
+  btn.textContent = 'Copy & Create Follow-up Task';
+  document.getElementById('email-overlay').classList.add('show');
+}
+
+function closeEmailModal() {
+  document.getElementById('email-overlay').classList.remove('show');
+  _emailPropId = null;
+}
+
+function copyEmail() {
+  const body = document.getElementById('email-body').value;
+  navigator.clipboard.writeText(body).then(() => {
+    const fb = document.getElementById('email-modal-feedback');
+    fb.textContent = '✓ Email body copied to clipboard — paste into HubSpot to send';
+    fb.style.display = 'block';
+    setTimeout(() => fb.style.display = 'none', 4000);
+  });
+}
+
+function copyAndFollowup() {
+  const p = DATA.find(x => x.id === _emailPropId);
+  if (!p) return;
+
+  navigator.clipboard.writeText(document.getElementById('email-body').value);
+
+  const due = addWorkingDays(new Date(), 2);
+  const dueStr = due.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
+
+  // Demo build: the production version also creates a follow-up task in HubSpot, due 2 working days out.
+  const fb = document.getElementById('email-modal-feedback');
+  fb.textContent = `Email copied. Demo — a follow-up task would be created for ${due ? dueStr : ''}`;
+  fb.style.display = 'block';
+  const btn = document.getElementById('btn-copy-followup');
+  btn.textContent = 'Copied';
+  setTimeout(() => { btn.textContent = 'Copy & Create Follow-up Task'; }, 4000);
+}
+
+// ── Webhook plumbing removed in the demo build ──
+// The production build persists an N8N webhook URL, fetches live results and
+// maps them onto DATA via applyWebhookData(). None of that ships in the demo.
+
+// ── Update KPI bar from the demo data set ──
+function refreshKpiBar() {
+  const total = DATA.reduce((s,p)=>s+p.opp.value,0);
+  const highCount = DATA.filter(p=>p.priority==='high').length;
+  const medCount  = DATA.filter(p=>p.priority==='medium').length;
+  const propsWithOcc = DATA.filter(p=>p.m.marketOccupancy > 0 && p.m.occupancy > 0);
+  const avgOccGap = propsWithOcc.length
+    ? Math.round(propsWithOcc.reduce((s,p)=>s+(p.m.marketOccupancy-p.m.occupancy),0)/propsWithOcc.length)
+    : 0;
+  const totalStr = '\u00a3'+total.toLocaleString();
+  const shortStr = total >= 1000 ? '\u00a3'+Math.round(total/1000)+'k' : '\u00a3'+total;
+
+  const set = (sel, val) => { const el = document.querySelector(sel); if (el) el.textContent = val; };
+  set('.kpi-cell:nth-child(1) .kpi-value', DATA.length);
+  set('.kpi-cell:nth-child(2) .kpi-value', totalStr);
+  set('.kpi-cell:nth-child(3) .kpi-value', avgOccGap > 0 ? '\u2212'+avgOccGap+' pts' : 'N/A');
+  set('.kpi-cell:nth-child(4) .kpi-value', highCount + medCount);
+
+  // Dashboard view tiles
+  const dash = document.querySelectorAll('.dash-stat-val');
+  if (dash.length >= 2) { dash[0].textContent = DATA.length; dash[1].textContent = totalStr; }
+
+  // Weekly banner
+  const banner = document.querySelector('.weekly-banner-left p');
+  if (banner) banner.textContent = `${DATA.length} properties flagged across the portfolio \u00b7 ${totalStr} in recoverable TBV identified this week`;
+  const bannerStats = document.querySelectorAll('.weekly-stat-val');
+  if (bannerStats.length >= 4) {
+    bannerStats[0].textContent = DATA.length;
+    bannerStats[1].textContent = highCount;
+    bannerStats[3].textContent = shortStr;
+  }
+}
+
+// ── Analysis animation ──
+function showAnalysis() {
+  document.getElementById('overlay').classList.add('show');
+  const steps=[{id:'s1',delay:0,dur:900},{id:'s2',delay:900,dur:800},{id:'s3',delay:1700,dur:700},{id:'s4',delay:2400,dur:600},{id:'s5',delay:3000,dur:500}];
+  steps.forEach(s=>{
+    setTimeout(()=>{ const el=document.getElementById(s.id); el.className='step-ic running'; el.textContent=''; }, s.delay);
+    setTimeout(()=>{ const el=document.getElementById(s.id); el.className='step-ic done'; el.textContent='\u2713'; }, s.delay+s.dur);
+  });
+
+  // Demo build: animates the real pipeline's stages over the local sample data.
+  setTimeout(() => {
+    document.getElementById('modal-spinner').style.display='none';
+    document.getElementById('modal-title').textContent='Analysis Complete';
+    const n = DATA.length;
+    const v = DATA.reduce((s,p)=>s+(p.opp?.value||0),0).toLocaleString();
+    document.getElementById('modal-sub').textContent=`${n} revenue opportunities found \u00b7 \u00a3${v} recoverable TBV \u00b7 Demo data`;
+    setTimeout(()=>{ closeAnalysis(); toast(`Analysis complete — ${n} opportunities shown`); }, 1800);
+  }, 3600);
+}
+
+function closeAnalysis() {
+  document.getElementById('overlay').classList.remove('show');
+  ['s1','s2','s3','s4','s5'].forEach((id,i)=>{ const el=document.getElementById(id); el.className='step-ic pending'; el.textContent=i+1; });
+  document.getElementById('modal-spinner').style.display='block';
+  document.getElementById('modal-title').textContent='Running Analysis…';
+  document.getElementById('modal-sub').textContent='Scanning your portfolio for revenue opportunities';
+}
+
+// ── Dynamic date / greeting helpers ──
+function getWeekStartStr() {
+  const d = new Date();
+  const day = d.getDay(); // 0=Sun
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  return monday.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+function getNextMondayStr() {
+  const d = new Date();
+  const daysUntil = (8 - d.getDay()) % 7 || 7; // days until next Monday
+  const next = new Date(d);
+  next.setDate(d.getDate() + daysUntil);
+  return next.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+function fmtLastRun(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+    + ' · ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+function initDynamic() {
+  const wc = getWeekStartStr();
+  const greeting = getGreeting();
+
+  // Greeting & sub-title
+  const welcomeTitle = document.getElementById('welcome-title');
+  const welcomeSub   = document.getElementById('welcome-sub');
+  if (welcomeTitle) welcomeTitle.textContent = `${greeting}, Greg 👋`;
+  if (welcomeSub)   welcomeSub.textContent   = `Here's your portfolio revenue snapshot for w/c ${wc}`;
+
+  // Weekly banner & report date
+  const bannerTitle = document.getElementById('weekly-banner-title');
+  const reportSub   = document.getElementById('report-date-sub');
+  if (bannerTitle) bannerTitle.innerHTML = `Weekly Revenue Report &mdash; w/c ${wc}`;
+  if (reportSub)   reportSub.textContent = `w/c ${wc} · Generated ${new Date().toLocaleDateString('en-GB',{weekday:'long'})} ${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
+
+  // Last-run badge
+  const lastRunIso = localStorage.getItem('tn_last_run');
+  const badge = document.getElementById('last-run-badge');
+  if (badge) {
+    if (lastRunIso) {
+      badge.innerHTML = `<span class="live-dot"></span> Last run: ${fmtLastRun(lastRunIso)}`;
+    } else {
+      badge.innerHTML = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#6b7280;margin-right:6px;"></span> Not yet run`;
+    }
+  }
+
+  // Next-run line
+  const nextRunLine = document.getElementById('next-run-line');
+  if (nextRunLine) {
+    const sourceLabel = 'All data: fictional sample set';
+    nextRunLine.textContent = `Next run: ${getNextMondayStr()} · 09:00  ·  ${sourceLabel}`;
+  }
+}
+
+// ── Init ──
+renderList();
+updateFilterCounts();
+refreshKpiBar();
+initDynamic();
+</script>
+
+<!-- ════════ BUILD CREDIT ════════ -->
+<div class="build-credit">
+  <div class="bc-avatar">GH</div>
+  <div class="bc-text">
+    <div class="bc-name">Designed &amp; built by Greg Hood</div>
+    <div class="bc-desc">
+      An end-to-end revenue tool: warehouse SQL to detect and size the opportunity, a scheduled
+      pipeline to run it weekly, and this interface to put the result in front of the person who
+      can act on it. Built solo — data modelling, detection logic, orchestration and front end.
+    </div>
+  </div>
+  <div class="bc-tags">
+    <span class="bc-tag">SQL / Warehouse</span>
+    <span class="bc-tag">Pipeline Orchestration</span>
+    <span class="bc-tag">CRM Integration</span>
+    <span class="bc-tag">Front End</span>
+  </div>
+</div>
+</body>
+</html>
