@@ -6,7 +6,7 @@ A single-page dashboard that scans a short-let property portfolio, flags underpe
 properties against six revenue signals, sizes the recoverable revenue behind each flag, and
 routes the fix to the right person.
 
-**[▶ View the live demo](https://YOUR-USERNAME.github.io/revenue-opportunity-detector-demo/)**
+**[▶ View the live demo](https://ghood1.github.io/revenue-opportunity-detector-demo/)**
 &nbsp;·&nbsp; *(update this link once GitHub Pages is enabled — see below)*
 
 > **This is a demo build.** Every property, host, account manager and figure is fictional
@@ -87,13 +87,13 @@ git init
 git add .
 git commit -m "Revenue Opportunity Detector — demo build"
 git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/revenue-opportunity-detector-demo.git
+git remote add origin https://github.com/ghood1/revenue-opportunity-detector-demo.git
 git push -u origin main
 ```
 
 Then in the repository: **Settings → Pages → Source: `Deploy from a branch` → Branch: `main` / `root` → Save.**
 
-The site publishes at `https://YOUR-USERNAME.github.io/revenue-opportunity-detector-demo/`
+The site publishes at `https://ghood1.github.io/revenue-opportunity-detector-demo/`
 within a minute or two. Update the demo link at the top of this file once it's live.
 
 > If the repository is public, anyone with the URL can view it. Nothing in this build is
